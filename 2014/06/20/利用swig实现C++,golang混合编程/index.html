@@ -1,0 +1,402 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>利用swig实现C++,golang混合编程 | Gaxxx&#39;s Blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="gaxxx">
+    
+    <meta name="description" content="实验项目：
+https://github.com/gaxxx/ctp/
+其中实现了两个主要的功能
+
+在golang中调用C++函数
+C++中触发回调时，调用golang的代码
+
+准备swig文件
+以下的部分实现了功能1
+%module ctp %{
+#include &quot;ThostFtdcMdApi.">
+    
+    
+    
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/pacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/pacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+</head>
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Gaxxx&#39;s Blog">Gaxxx&#39;s Blog</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+					<li>
+					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" name="q" autocomplete="off" maxlength="20" placeholder="Search" />
+						<input type="hidden" name="q" value="site:blog.gaxxx.me/">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2014/06/20/利用swig实现C++,golang混合编程/" title="利用swig实现C++,golang混合编程" itemprop="url">利用swig实现C++,golang混合编程</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://blog.gaxxx.me/" title="gaxxx">gaxxx</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2014-06-20T07:07:21.000Z" itemprop="datePublished">Jun 20 2014</time>
+    Updated:<time datetime="2014-08-05T05:07:00.000Z" itemprop="dateModified">Aug 5 2014</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#实验项目："><span class="toc-number">1.</span> <span class="toc-text">实验项目：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#准备swig文件"><span class="toc-number">2.</span> <span class="toc-text">准备swig文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#执行编译"><span class="toc-number">3.</span> <span class="toc-text">执行编译</span></a></li></ol><li class="toc-item toc-level-1"><a class="toc-link" href="#生成ctp_wrap-cxx_ctp_gc-c_ctp-go"><span class="toc-number"></span> <span class="toc-text">生成ctp_wrap.cxx ctp_gc.c ctp.go</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#编译libctp-so"><span class="toc-number"></span> <span class="toc-text">编译libctp.so</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#编译golang_package"><span class="toc-number"></span> <span class="toc-text">编译golang package</span></a></li><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#实际应用"><span class="toc-number">1.</span> <span class="toc-text">实际应用</span></a></li></ol>
+		</div>
+		
+		<h2 id="实验项目：">实验项目：</h2>
+<p><a href="https://github.com/gaxxx/ctp/" target="_blank" rel="external">https://github.com/gaxxx/ctp/</a></p>
+<p>其中实现了两个主要的功能</p>
+<ol>
+<li>在golang中调用C++函数</li>
+<li>C++中触发回调时，调用golang的代码</li>
+</ol>
+<h2 id="准备swig文件">准备swig文件</h2>
+<p>以下的部分实现了功能1</p>
+<pre><code>%<span class="keyword">module</span> ctp %{
+#<span class="keyword">include</span> <span class="string">"ThostFtdcMdApi.h"</span>
+#<span class="keyword">include</span> <span class="string">"ThostFtdcTraderApi.h"</span>
+#<span class="keyword">include</span> <span class="string">"ThostFtdcUserApiDataType.h"</span>
+#<span class="keyword">include</span> <span class="string">"ThostFtdcUserApiStruct.h"</span>
+#<span class="keyword">include</span> <span class="string">"helper.h"</span>
+%}
+
+%<span class="keyword">include</span> <span class="string">"../c++/ThostFtdcMdApi.h"</span>
+%<span class="keyword">include</span> <span class="string">"../c++/ThostFtdcTraderApi.h"</span>
+%<span class="keyword">include</span> <span class="string">"../c++/ThostFtdcUserApiDataType.h"</span>
+%<span class="keyword">include</span> <span class="string">"../c++/ThostFtdcUserApiStruct.h"</span>
+%<span class="keyword">include</span> <span class="string">"../helper/helper.h"</span>
+</code></pre><p>但是要完成回调，需要用到director的特性<br>如果要对CThostFtdcTraderSpi的类进行回调，需要定义一个实现了CThostFtdcTraderSpi的golang结构体,通过NewDirector&lt;类名&gt; 进行封装，传给C++.</p>
+<pre><code><span class="tag">%<span class="title">module</span>(<span class="attribute">directors</span>=<span class="string">"1"</span>)</span> CThostFtdcTraderSpi
+<span class="tag">%<span class="title">feature</span>("director")</span> CThostFtdcTraderSpi;
+<span class="tag">
+%<span class="title">insert</span>(go_wrapper)</span> %{
+
+type GoThostFtdcTraderSpi struct {
+        CThostFtdcTraderSpi
+}
+
+func GTrader(impl CThostFtdcTraderSpi) CThostFtdcTraderSpi {
+        return NewDirectorCThostFtdcTraderSpi(&amp;GoThostFtdcTraderSpi{impl})
+}
+........
+</code></pre><p>在实际的类实现中，需要完成 CThostFtdcTraderSpi的接口实现<br>为简单起见，我封装了实现所有空接口的变量ThostFtdcTraderSpiImplBase.<br>因此在编写实际类实现时,只需要重写必要的回调函数接口就可以了</p>
+<pre><code><span class="typedef"><span class="keyword">type</span> <span class="type">TradeApi</span> struct <span class="container">{
+        <span class="title">ctp</span>.<span class="type">ThostFtdcTraderSpiImplBase</span>
+}</span></span>
+
+//回调函数
+<span class="title">func</span> (g *<span class="type">TradeApi</span>) <span class="type">OnFrontConnected</span>() {
+        fmt.<span class="type">Printf</span>(<span class="string">"connected\n"</span>)
+}
+</code></pre><p>需要注意的是，因为swig利用cgo，因此，不能再引入其他利用cgo编译的库了 :(<br>如果有其他需要用C/C++实现的函数，可以在 helper.h / helper.cpp 中完成</p>
+<h2 id="执行编译">执行编译</h2>
+<h1 id="生成ctp_wrap-cxx_ctp_gc-c_ctp-go">生成ctp_wrap.cxx ctp_gc.c ctp.go</h1>
+<p>swig -go -c++ -intgosize 64 -soname libctp.so ./ctp.swig</p>
+<h1 id="编译libctp-so">编译libctp.so</h1>
+<p>g++ ctp_wrap.cxx -o ctp_wrap.o<br>g++ helper.cpp -o helper.o<br>g++ -shared -o libctp.so ctp_wrap.o helper.o</p>
+<h1 id="编译golang_package">编译golang package</h1>
+<p>go tool 6c -I/usr/local/go/pkg/linux_amd64 -D _64BIT ctp_gc.c<br>go tool 6g ctp.go<br>go tool pack grc ctp.a ctp.6 ctp_gc.6</p>
+<p>将libctp.so放到lib路径中 (/usr/lib/)<br>将ctp.a 放到golang的package中 (/usr/local/go/pkg/linux_amd64/)<br>将cgp.go放到golang的source中 (/usr/local/go/src/pkt/ctp/)</p>
+<h2 id="实际应用">实际应用</h2>
+<pre><code>//继承ctp<span class="preprocessor">.ThostFtdcTraderSpiImplBase</span>
+type TradeApi struct {
+     ctp<span class="preprocessor">.ThostFtdcTraderSpiImplBase</span>
+}
+
+//重写回调接口
+func (g *TradeApi) OnFrontConnected() {
+    fmt<span class="preprocessor">.Printf</span>(<span class="string">"connected\n"</span>)
+}
+
+func main() {
+    api = ctp<span class="preprocessor">.CThostFtdcTraderApiCreateFtdcTraderApi</span>()
+    //注册director类
+    api<span class="preprocessor">.RegisterSpi</span>(ctp<span class="preprocessor">.GTrader</span>(&amp;TradeApi{}))
+    api<span class="preprocessor">.RegisterFront</span>(front)
+    api<span class="preprocessor">.Init</span>()
+    api<span class="preprocessor">.Join</span>()
+}
+</code></pre>  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/golang/">golang</a><a href="/tags/swig/">swig</a>
+  </div>
+
+
+
+
+<div class="article-share" id="share">
+
+  <div data-url="http://blog.gaxxx.me/2014/06/20/利用swig实现C++,golang混合编程/" data-title="利用swig实现C++,golang混合编程 | Gaxxx&#39;s Blog" data-tsina="undefined" class="share clearfix">
+  </div>
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2014/07/25/ATS反向代理/" title="Apache Traffic Server 反向代理">
+  <strong>PREVIOUS:</strong><br/>
+  <span>
+  Apache Traffic Server 反向代理</span>
+</a>
+</div>
+
+
+</nav>
+
+	
+<section class="comment">
+	<div class="ds-thread"></div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#实验项目："><span class="toc-number">1.</span> <span class="toc-text">实验项目：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#准备swig文件"><span class="toc-number">2.</span> <span class="toc-text">准备swig文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#执行编译"><span class="toc-number">3.</span> <span class="toc-text">执行编译</span></a></li></ol><li class="toc-item toc-level-1"><a class="toc-link" href="#生成ctp_wrap-cxx_ctp_gc-c_ctp-go"><span class="toc-number"></span> <span class="toc-text">生成ctp_wrap.cxx ctp_gc.c ctp.go</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#编译libctp-so"><span class="toc-number"></span> <span class="toc-text">编译libctp.so</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#编译golang_package"><span class="toc-number"></span> <span class="toc-text">编译golang package</span></a></li><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#实际应用"><span class="toc-number">1.</span> <span class="toc-text">实际应用</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+
+  
+<div class="tagslist">
+	<p class="asidetitle">Tags</p>
+		<ul class="clearfix">
+		
+			<li><a href="/tags/cdn/" title="cdn">cdn<sup>2</sup></a></li>
+		
+			<li><a href="/tags/cloud/" title="cloud">cloud<sup>1</sup></a></li>
+		
+			<li><a href="/tags/golang/" title="golang">golang<sup>1</sup></a></li>
+		
+			<li><a href="/tags/lua/" title="lua">lua<sup>1</sup></a></li>
+		
+			<li><a href="/tags/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		
+			<li><a href="/tags/paas/" title="paas">paas<sup>1</sup></a></li>
+		
+			<li><a href="/tags/rails/" title="rails">rails<sup>1</sup></a></li>
+		
+			<li><a href="/tags/ror/" title="ror">ror<sup>1</sup></a></li>
+		
+			<li><a href="/tags/ruby/" title="ruby">ruby<sup>1</sup></a></li>
+		
+			<li><a href="/tags/swig/" title="swig">swig<sup>1</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  <div class="rsspart">
+	<a href="null" target="_blank" title="rss">RSS</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	
+	<div class="social-font" class="clearfix">
+		
+		
+		
+		<a href="https://github.com/https://github.com/gaxxx" target="_blank" title="github"></a>
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2014 
+		
+		<a href="http://blog.gaxxx.me/" target="_blank" title="gaxxx">gaxxx</a>
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"null"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+  </body>
+</html>
