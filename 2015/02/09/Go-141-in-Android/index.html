@@ -4,14 +4,19 @@
 <head>
   <meta charset="UTF-8">
   
-    <title>Web Application Architectures(ROR) | Gaxxx&#39;s Blog</title>
+    <title>Go 1.4.1 in Android | Gaxxx&#39;s Blog</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
     
     <meta name="author" content="gaxxx">
     
-    <meta name="description" content="Overview
-最近学了一门Web Application Architectures,本来是打算借鉴一下其中的架构，然后用golang做一个简单CMS类应用实现的，但是学完发现，ROR用来开发的效率还不错，而且能自动生成不少代码。
-即使相对于号称快捷开发的django,同样的任务，ROR的编码量">
+    <meta name="description" content="OverView
+Build Android App in Android Studio with Go(1.4.1) support.
+Preparation
+
+Linux 64bits (Archlinux for me)
+NDK
+golang crosscompile
+golang mobil">
     
     
     
@@ -64,15 +69,15 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2014/08/23/Web-Application-Architectures(ROR)/" title="Web Application Architectures(ROR)" itemprop="url">Web Application Architectures(ROR)</a>
+      <a href="/2015/02/09/Go-141-in-Android/" title="Go 1.4.1 in Android" itemprop="url">Go 1.4.1 in Android</a>
   </h1>
   <p class="article-author">By
     
       <a href="http://blog.gaxxx.me/" title="gaxxx">gaxxx</a>
     </p>
   <p class="article-time">
-    <time datetime="2014-08-23T12:57:40.000Z" itemprop="datePublished">Aug 23 2014</time>
-    Updated:<time datetime="2014-08-24T03:12:14.000Z" itemprop="dateModified">Aug 24 2014</time>
+    <time datetime="2015-02-09T10:01:15.000Z" itemprop="datePublished">Feb 9 2015</time>
+    Updated:<time datetime="2015-02-09T10:40:50.000Z" itemprop="dateModified">Feb 9 2015</time>
     
   </p>
 </header>
@@ -81,77 +86,84 @@
 		
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">Contents</strong>
-		<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Overview"><span class="toc-number">1.</span> <span class="toc-text">Overview</span></a></li><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#安装"><span class="toc-number">1.1.</span> <span class="toc-text">安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#创建应用"><span class="toc-number">1.2.</span> <span class="toc-text">创建应用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#添加数据库支持"><span class="toc-number">1.3.</span> <span class="toc-text">添加数据库支持</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#修改界面逻辑"><span class="toc-number">1.4.</span> <span class="toc-text">修改界面逻辑</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#完整的示例"><span class="toc-number">1.5.</span> <span class="toc-text">完整的示例</span></a></li></ol>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#OverView"><span class="toc-number">1.</span> <span class="toc-text">OverView</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Preparation"><span class="toc-number">2.</span> <span class="toc-text">Preparation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Install_NDK"><span class="toc-number">3.</span> <span class="toc-text">Install NDK</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Golang_runtime_bootstrap_(for_android)"><span class="toc-number">4.</span> <span class="toc-text">Golang runtime bootstrap (for android)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Get_mobile_tools"><span class="toc-number">5.</span> <span class="toc-text">Get mobile tools</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Get_Jni-maker"><span class="toc-number">6.</span> <span class="toc-text">Get Jni-maker</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Final_step"><span class="toc-number">7.</span> <span class="toc-text">Final step</span></a></li></ol>
 		</div>
 		
-		<h1 id="Overview">Overview</h1>
-<p>最近学了一门<a href="https://class.coursera.org/webapplications-002" target="_blank" rel="external">Web Application Architectures</a>,本来是打算借鉴一下其中的架构，然后用golang做一个简单CMS类应用实现的，但是学完发现，ROR用来开发的效率还不错，而且能自动生成不少代码。</p>
-<p>即使相对于号称快捷开发的django,同样的任务，ROR的编码量还要更少一些,但有些人认为，django的架构，要更容易控制一些，参考很有意思的一篇blog, <a href="https://bernardopires.com/2014/03/rails-vs-django-an-in-depth-technical-comparison/" target="_blank" rel="external">RAILS VS DJANGO: AN IN-DEPTH TECHNICAL COMPARISON</a>.</p>
-<h2 id="安装">安装</h2>
-<p>在Archlinux下，直接安装ruby</p>
-<pre><code>root<span class="comment"># pacman -S ruby</span>
-root<span class="comment"># gem install rails</span>
-</code></pre><p>在其他操作系统上，包括ubuntu，ruby的版本太老了….可以参考<a href="http://rvm.io/rvm/install" target="_blank" rel="external">rvm</a>,可以在<a href="http://railscasts.com/episodes/310-getting-started-with-rails" target="_blank" rel="external">railscast</a>上找到相关视频</p>
-<h2 id="创建应用">创建应用</h2>
-<p>安装完rails之后，可以直接创建应用了</p>
-<pre><code>root<span class="comment"># rails new blog</span>
-</code></pre><p>应用自动建立了相关目录，主要有</p>
+		<h2 id="OverView">OverView</h2>
+<p>Build Android App in Android Studio with Go(1.4.1) support.</p>
+<h2 id="Preparation">Preparation</h2>
+<ol>
+<li>Linux 64bits (Archlinux for me)</li>
+<li><a href="https://developer.android.com/tools/sdk/ndk/index.html#download" target="_blank" rel="external">NDK</a></li>
+<li><a href="github.com/davecheney/golang-crosscompile.git">golang crosscompile</a></li>
+<li>golang mobile tools</li>
+<li><a href="https://github.com/gaxxx/go_jni_maker" target="_blank" rel="external">golang jni maker</a></li>
+<li>android studio</li>
+</ol>
+<h2 id="Install_NDK">Install NDK</h2>
 <ul>
-<li>config 配置目录，主要有数据库的配置，router的配置    </li>
-<li>db 数据库的shema</li>
-<li>public 404文件等</li>
-<li>app MVC相关的东西，其中<ul>
-<li>assets js和css文件</li>
-<li>models (MVC 中的M)</li>
-<li>views (MVC 中的V)</li>
-<li>controller  (MVC中的C)</li>
+<li>Download &amp; Install NDK </li>
 </ul>
-</li>
-</ul>
-<h2 id="添加数据库支持">添加数据库支持</h2>
-<p>rails默认使用sqlite，也可以使用mysql,甚至mongodb,以mysql为例<br>首先安装mysql以及相应的gem</p>
-<ul>
-<li>安装mysql(以Archlinux为例)</li>
-</ul>
-<pre><code>root<span class="comment"># pacman -S  mysql ; gem instamysql2</span>
+<pre><code><span class="comment">//for arch</span>
+yaourt android<span class="attribute">-ndk</span>
 </code></pre><ul>
-<li>编辑config/database.yml  (注意看默认配置文件的 &lt;&lt;: *default 的代码复用)</li>
+<li>Make toolchains for ndk</li>
 </ul>
-<pre><code><span class="label">development:</span>
-    adapter: mysql2
-    <span class="preprocessor">#使用的数据库</span>
-    database: db_name_dev
-    <span class="preprocessor">#mysql用户名</span>
-    username: woo
-    <span class="preprocessor">#mysql密码</span>
-    password: aabb
-</code></pre><ul>
-<li>增加post和comment数据结构</li>
-</ul>
-<pre><code>root# rails <span class="keyword">generate</span> scaffold post title:<span class="typename">string</span> <span class="keyword">body</span>:text
-root# rails <span class="keyword">generate</span> scaffold comment post_id:<span class="typename">integer</span> <span class="keyword">body</span>:text
-root# rake db:migrate
-</code></pre><p>这样就增加了post和comment的MVC以及相关的测试用例，更有趣的是，增加了post和comment的restful风格的界面<br>同时可以通过rake routes查看目前支持的restful的url,同时可以启动ror(默认使用3000端口),以及访问<a href="http://127.0.0.1:3000/posts/" target="_blank" rel="external">http://127.0.0.1:3000/posts/</a> </p>
-<pre><code>root<span class="comment"># rails s </span>
-</code></pre><h2 id="修改界面逻辑">修改界面逻辑</h2>
-<ul>
-<li>增加post与comment之间的关联，命令太多了，直接上<a href="https://asciinema.org" target="_blank" rel="external">asciinema</a><script type="text/javascript" src="https://asciinema.org/a/11671.js" id="asciicast-11671" async></script></li>
-<li>修改相关的router和view，在post页面展现comments,继续上asciinema<script type="text/javascript" src="https://asciinema.org/a/11672.js" id="asciicast-11672" async></script></li>
-<li>修改controller，每次提交comment之后重定向到post页面,修改comment的create函数<script type="text/javascript" src="https://asciinema.org/a/11674.js" id="asciicast-11674" async></script>
+<pre><code><span class="comment">//set ndk root dir </span>
+export NDK_ROOT<span class="subst">=</span>/opt/android<span class="attribute">-ndk</span>
+<span class="comment">//build toolchains</span>
+cd <span class="variable">$NDK_ROOT</span>
+<span class="built_in">.</span>/build/tools/make<span class="attribute">-standalone</span><span class="attribute">-toolchain</span><span class="built_in">.</span>sh <span class="subst">--</span>platform<span class="subst">=</span>android<span class="subst">-</span><span class="number">9</span> <span class="subst">--</span>install<span class="attribute">-dir</span><span class="subst">=</span><span class="variable">$NDK_ROOT</span> <span class="subst">--</span>ndk<span class="attribute">-dir</span><span class="subst">=</span><span class="variable">$NDK_ROOT</span> <span class="subst">--</span>toolchain<span class="subst">=</span>arm<span class="attribute">-linux</span><span class="attribute">-androideabi</span><span class="subst">-</span><span class="number">4.9</span>
+</code></pre><h2 id="Golang_runtime_bootstrap_(for_android)">Golang runtime bootstrap (for android)</h2>
+<pre><code><span class="comment">//get golang crosscompile </span>
+git clone https:<span class="comment">//github.com/davecheney/golang-crosscompile.git</span>
+<span class="comment">//source build script</span>
+source crosscompile<span class="built_in">.</span>bash
+<span class="comment">//set some variables</span>
+export GOARM<span class="subst">=</span><span class="number">7</span>
+export CC_FOR_TARGET<span class="subst">=</span><span class="variable">$NDK_ROOT</span>/bin/arm<span class="attribute">-linux</span><span class="attribute">-androideabi</span><span class="attribute">-gcc</span>
+<span class="comment">//!bootstrap</span>
+go<span class="attribute">-crosscompile</span><span class="attribute">-build</span> android/arm
+</code></pre><h2 id="Get_mobile_tools">Get mobile tools</h2>
+<pre><code>go <span class="keyword">get</span> golang.org/x/mobile
+</code></pre><h2 id="Get_Jni-maker">Get Jni-maker</h2>
+<pre><code>git <span class="keyword">clone</span> https:<span class="comment">//github.com/gaxxx/go_jni_maker</span>
+</code></pre><h2 id="Final_step">Final step</h2>
+<pre><code><span class="subst">*</span> create a golang library <span class="keyword">in</span> <span class="variable">$GOPATH</span>
+
+    mkdir <span class="variable">$GOPATH</span>/src/testgojni
+    cat <span class="subst">&lt;&lt;</span> <span class="string">'EOF'</span> <span class="subst">&gt;</span> <span class="variable">$GOPATH</span>/src/testgojni/test<span class="built_in">.</span>go
+    package testgojni
+    func Test() int {
+        <span class="keyword">return</span> <span class="number">1</span>
+    }
+    EOF
+
+<span class="subst">*</span> create a gradle based android studio project 
+
+    <span class="comment">//copy &amp; set jni maker</span>
+    cp <span class="subst">&lt;</span>go_jni_maker<span class="subst">&gt;</span>  <span class="subst">&lt;</span>android_studio_project<span class="subst">&gt;</span>/app<span class="subst">/</span>
+    <span class="comment">//set CC &amp; GOLIB in make.bash (if necc)</span>
+    CC<span class="subst">=</span>/opt/android<span class="attribute">-ndk</span>/bin/arm<span class="attribute">-linux</span><span class="attribute">-androideabli</span><span class="attribute">-gcc</span>
+    GOLIB<span class="subst">=</span>testgojni
+
+<span class="subst">*</span> RUN make<span class="built_in">.</span>bash
+<span class="subst">*</span> insert init snippet <span class="keyword">in</span> MainActivity
 
 
-
-</li>
-</ul>
-<h2 id="完整的示例">完整的示例</h2>
-<p>见<a href="https://bitbucket.org/gaxxx/blog_ror" target="_blank" rel="external">Bitbucket</a></p>
-  
+    <span class="keyword">protected</span> <span class="literal">void</span> onCreate(Bundle savedInstanceState) {
+        <span class="attribute">...</span><span class="built_in">..</span>
+        Go<span class="built_in">.</span>init(getApplicationContext());
+        Testgojni<span class="built_in">.</span>Test();
+    }
+<span class="subst">*</span> Have fun
+</code></pre>  
 	</div>
 		<footer class="article-footer clearfix">
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/ruby/">ruby</a><a href="/tags/rails/">rails</a><a href="/tags/ror/">ror</a>
+  <span></span> <a href="/tags/golang,-android/">golang, android</a>
   </div>
 
 
@@ -159,7 +171,7 @@ root# rake db:migrate
 
 <div class="article-share" id="share">
 
-  <div data-url="http://blog.gaxxx.me/2014/08/23/Web-Application-Architectures(ROR)/" data-title="Web Application Architectures(ROR) | Gaxxx&#39;s Blog" data-tsina="undefined" class="share clearfix">
+  <div data-url="http://blog.gaxxx.me/2015/02/09/Go-141-in-Android/" data-title="Go 1.4.1 in Android | Gaxxx&#39;s Blog" data-tsina="undefined" class="share clearfix">
   </div>
 
 </div>
@@ -168,19 +180,11 @@ root# rake db:migrate
 	
 <nav class="article-nav clearfix">
  
- <div class="prev" >
- <a href="/2014/09/21/抓取基于js的动态页面/" title="抓取基于js的动态页面">
-  <strong>PREVIOUS:</strong><br/>
-  <span>
-  抓取基于js的动态页面</span>
-</a>
-</div>
-
 
 <div class="next">
-<a href="/2014/08/20/Docker简介/"  title="Docker简介">
+<a href="/2014/09/21/抓取基于js的动态页面/"  title="抓取基于js的动态页面">
  <strong>NEXT:</strong><br/> 
- <span>Docker简介
+ <span>抓取基于js的动态页面
 </span>
 </a>
 </div>
@@ -197,7 +201,7 @@ root# rake db:migrate
 
   <div id="toc" class="toc-aside">
   <strong class="toc-title">Contents</strong>
-  <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Overview"><span class="toc-number">1.</span> <span class="toc-text">Overview</span></a></li><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#安装"><span class="toc-number">1.1.</span> <span class="toc-text">安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#创建应用"><span class="toc-number">1.2.</span> <span class="toc-text">创建应用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#添加数据库支持"><span class="toc-number">1.3.</span> <span class="toc-text">添加数据库支持</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#修改界面逻辑"><span class="toc-number">1.4.</span> <span class="toc-text">修改界面逻辑</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#完整的示例"><span class="toc-number">1.5.</span> <span class="toc-text">完整的示例</span></a></li></ol>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#OverView"><span class="toc-number">1.</span> <span class="toc-text">OverView</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Preparation"><span class="toc-number">2.</span> <span class="toc-text">Preparation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Install_NDK"><span class="toc-number">3.</span> <span class="toc-text">Install NDK</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Golang_runtime_bootstrap_(for_android)"><span class="toc-number">4.</span> <span class="toc-text">Golang runtime bootstrap (for android)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Get_mobile_tools"><span class="toc-number">5.</span> <span class="toc-text">Get mobile tools</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Get_Jni-maker"><span class="toc-number">6.</span> <span class="toc-text">Get Jni-maker</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Final_step"><span class="toc-number">7.</span> <span class="toc-text">Final step</span></a></li></ol>
   </div>
 
 <div id="asidepart">
