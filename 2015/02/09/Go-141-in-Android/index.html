@@ -77,7 +77,7 @@ golang mobil">
     </p>
   <p class="article-time">
     <time datetime="2015-02-09T10:01:15.000Z" itemprop="datePublished">Feb 9 2015</time>
-    Updated:<time datetime="2015-02-09T10:42:52.000Z" itemprop="dateModified">Feb 9 2015</time>
+    Updated:<time datetime="2015-02-09T10:44:03.000Z" itemprop="dateModified">Feb 9 2015</time>
     
   </p>
 </header>
@@ -129,11 +129,17 @@ go<span class="attribute">-crosscompile</span><span class="attribute">-build</sp
 </code></pre><h2 id="Get_Jni-maker">Get Jni-maker</h2>
 <pre><code>git <span class="keyword">clone</span> https:<span class="comment">//github.com/gaxxx/go_jni_maker</span>
 </code></pre><h2 id="Final_step">Final step</h2>
-<pre><code>* create a golang library <span class="keyword">in</span> <span class="variable">$GOPATH</span>
+<pre><code><span class="subst">*</span> create a golang library <span class="keyword">in</span> <span class="variable">$GOPATH</span>
 
     mkdir <span class="variable">$GOPATH</span>/src/testgojni
-</code></pre><p>cat &lt;&lt; ‘EOF’ &gt; $GOPATH/src/testgojni/test.go<br>package testgojni<br>func Test() int {<br>    return 1<br>}<br>EOF</p>
-<pre><code><span class="subst">*</span> create a gradle based android studio project 
+    cat <span class="subst">&lt;&lt;</span> <span class="string">'EOF'</span> <span class="subst">&gt;</span> <span class="variable">$GOPATH</span>/src/testgojni/test<span class="built_in">.</span>go
+    package testgojni
+    func Test() int {
+        <span class="keyword">return</span> <span class="number">1</span>
+    }
+    EOF
+
+<span class="subst">*</span> create a gradle based android studio project 
 
     <span class="comment">//copy &amp; set jni maker</span>
     cp <span class="subst">&lt;</span>go_jni_maker<span class="subst">&gt;</span>  <span class="subst">&lt;</span>android_studio_project<span class="subst">&gt;</span>/app<span class="subst">/</span>
