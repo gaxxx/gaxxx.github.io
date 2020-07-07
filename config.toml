@@ -1,7 +1,7 @@
 # The URL the site will be built for
 base_url = "https://gaxxx.github.com"
 title = "siwu's blog"
-theme = "slim"
+theme = "zulma"
 
 # Whether to automatically compile all Sass files in the sass directory
 compile_sass = true
@@ -14,21 +14,16 @@ default_language = "en"
 # Whether to build a search index to be used later on by a JavaScript library
 build_search_index = true
 
-
 taxonomies = [
-    {name = "tags", paginate_by = 5, rss = true}
+    {name = "categories"},
+    {name = "tags", paginate_by = 5, feed = true},
 ]
 
 [extra]
-# Show a summary of a post in a list
-slim_summary = true
-# Show the content of a post in a list
-slim_content = true
-# Links to show at the top of the menu
-slim_menu = [
-	{url = "$BASE_URL/tags", name = "Tags"}
-]
-# Links to show at the bottom of the menu
-slim_social = [
-	{url = "https://github.com/gaxxx", name = "Github"}
+zulma_theme = "flatly"
+zulma_brand = { text = "Home"}
+zulma_menu = [
+    {url = "$BASE_URL/tech", name = "Tech"},
+    {url = "$BASE_URL/tags", name = "Tags"},
+    {url = "https://github.com/gaxxx", name = "Github"}
 ]
