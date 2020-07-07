@@ -1,6 +1,3 @@
-[submodule "themes/hyde"]
-	path = themes/hyde
-	url = https://github.com/poole/hyde
 [submodule "themes/Zulma"]
 	path = themes/Zulma
 	url = https://github.com/Worble/Zulma
