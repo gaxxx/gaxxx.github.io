@@ -21,6 +21,7 @@ taxonomies = [
 
 [extra]
 zulma_theme = "flatly"
+
 zulma_brand = { text = "Home"}
 zulma_menu = [
     {url = "$BASE_URL/tech", name = "Tech"},
