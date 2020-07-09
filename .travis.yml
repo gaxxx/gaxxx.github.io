@@ -13,12 +13,10 @@ before_script:
 script:
   - zola build
 
-# If you are using a different folder than `public` for the output directory, you will
-# need to change the `zola` command and the `ghp-import` path
-after_success: |
-  [ $TRAVIS_BRANCH = code ] &&
-  [ $TRAVIS_PULL_REQUEST = false ] &&
-  zola build &&
-  sudo pip install ghp-import &&
-  ghp-import -n public -b master &&
-  git push -fq https://${GH_TOKEN}@github.com/gaxxx/gaxxx.github.io.git master
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $GH_TOKEN
+  local_dir: public
+  on:
+    branch: master
