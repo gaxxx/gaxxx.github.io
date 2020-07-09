@@ -6,7 +6,6 @@ tags = ["cloud", "pass"]
 
 +++
 
-# Overview
 [Docker](http://docker.io)是一个提供PAAS平台服务的软件，它由golang编写，通过控制lxc服务，在一台宿主机上提供成百上千个lxc container的服务器，效率远高于SAAS。
 
 <!-- more -->

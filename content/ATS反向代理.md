@@ -6,7 +6,6 @@ tags = ["cdn"]
 
 +++
 
-## 简介
 Apache出的一个高效CDN服务器，应用案例有：
 [Comcast](http://www.bizety.com/2014/02/23/comcasts-internal-cdn/)
 [Taobao](http://www.infoq.com/cn/presentations/apache-traffic-server-and-cdn-practice)

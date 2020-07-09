@@ -1,4 +1,4 @@
 +++
-redirect_to = "tech"
+sort_by = "date"
+paginate_by = 10
 +++
-

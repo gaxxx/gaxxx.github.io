@@ -1,7 +1,7 @@
 # The URL the site will be built for
 base_url = "https://blog.gaxxx.me"
 title = "siwu's blog"
-theme = "Zulma"
+theme = "slim"
 
 # Whether to automatically compile all Sass files in the sass directory
 compile_sass = true
@@ -15,16 +15,16 @@ default_language = "en"
 build_search_index = true
 
 taxonomies = [
-    {name = "categories"},
-    {name = "tags", paginate_by = 5, feed = true},
+    {name = "tags", paginate_by = 5, rss = true}
 ]
 
-[extra]
-zulma_theme = "flatly"
 
-zulma_brand = { text = "Home"}
-zulma_menu = [
-    {url = "$BASE_URL/tech", name = "Tech"},
-    {url = "$BASE_URL/tags", name = "Tags"},
+[extra]
+slim_summary = true
+slim_menu = [
+    {url = "$BASE_URL/tags", name = "Tags"}
+]
+# Links to show at the bottom of the menu
+slim_social = [
     {url = "https://github.com/gaxxx", name = "Github"}
 ]

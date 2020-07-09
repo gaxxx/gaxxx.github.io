@@ -6,7 +6,6 @@ tags = ["ruby", "rails", "ror"]
 
 +++
 
-# Overview
 最近学了一门[Web Application Architectures](https://class.coursera.org/webapplications-002),本来是打算借鉴一下其中的架构，然后用golang做一个简单CMS类应用实现的，但是学完发现，ROR用来开发的效率还不错，而且能自动生成不少代码。
 
 <!-- more -->

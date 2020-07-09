@@ -5,8 +5,6 @@ date = 2015-02-09
 tags = ["golang", "android"] 
 +++
 
-
-## OverView
 Build Android App in Android Studio with Go(1.4.1) support.
 
 <!-- more -->
