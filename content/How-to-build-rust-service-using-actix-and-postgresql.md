@@ -8,18 +8,20 @@ tags = ["rust", "crud"]
 这是rust系列的第一篇
 
 虽然rust以其高性能著称，但是写简单crud的时候，我们还是喜欢用spring boot或者golang，
-但是要用rust写，也不是不可以。。
+但是要用rust写，也不是不可以
+
+具体代码在:
+https://github.com/gaxxx/rust-crud
 
 
 <!-- more -->
 
-## prequesition
+## 依赖
 * postgresql
 * rust
 
-## Setup environment
+## 配置环境
 
-* clion
 * postgrsql: grant a member, generate connection string
 * rust: 
     * using stable channel
