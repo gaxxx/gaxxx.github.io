@@ -30,6 +30,8 @@
     <script src="{{ get_url(path="js/slim.js", trailing_slash=false) }}"></script>
     <script src="{{ get_url(path="js/elasticlunr.min.js", trailing_slash=false) }}"></script>
     <script src="{{ get_url(path="search_index." ~ lang ~ ".js") | safe }}"></script>
+    <script src="{{ get_url(path="js/lunr.stemmer.support.js") | safe }}"></script>
+    <script src="{{ get_url(path="js/lunr." ~ lang ~ ".js") | safe }}"></script>
     <script src="{{ get_url(path="js/search.js", trailing_slash=false) }}"></script>
     {% block extra_script %}{% endblock extra_script %}
 </body>
