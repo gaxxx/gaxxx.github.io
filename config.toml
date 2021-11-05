@@ -18,7 +18,6 @@ taxonomies = [
     {name = "tags", paginate_by = 5, rss = true}
 ]
 
-
 [extra]
 slim_summary = true
 slim_menu = [
@@ -26,5 +25,6 @@ slim_menu = [
 ]
 # Links to show at the bottom of the menu
 slim_social = [
+    {url = "https://www.linkedin.com/in/gaxxx", name = "LinkedIn"},
     {url = "https://github.com/gaxxx", name = "Github"}
 ]
