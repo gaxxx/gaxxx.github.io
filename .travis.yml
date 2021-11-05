@@ -5,7 +5,7 @@ git:
   submodules: false
 
 script:
-  - cp bin/zola-cn /usr/local/bin/zola
+  - sudo cp bin/zola-cn /usr/local/bin/zola
 
 # If you are using a different folder than `public` for the output directory, you will
 # need to change the `zola` command and the `ghp-import` path
