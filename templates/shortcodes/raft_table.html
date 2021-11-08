@@ -1,0 +1,16 @@
+{% set keys = ["raft", "kvraft", "shardkv"] %}
+{% set assets = ["raft_0.png", "raft_1.png", "raft_2.png"] %}
+<table>
+<tr>
+  {% for th in keys %} 
+  <th>{{th}}</th>
+  {% endfor %}
+</tr>
+<tr>
+  {% for td in assets %}
+  {% set asset = page.path ~ td %}
+  {% set image = resize_image(path=asset, width=300, height=600, ) %}
+  <td><a href="{{get_url(path=asset)}}" target="_blank"><img src="{{ image.url }}" alt="{{get_url(path=asset)}}" /></a></td>
+  {% endfor %}
+</tr>
+</table>
