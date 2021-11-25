@@ -13,7 +13,6 @@ tags = ["rust", "Android"]
 ## 背景
 最近在看Android下面的高性能kv store, 突然想到的这个idea，找个高性能的rust kvstore集成到Android项目，然后通过jni调用, 不就完了吗. 然后就一脚踩到坑里面了. 
 
-
 Jni是一个非常成熟的机制了，通过rust导出C函数也是非常可靠的，所以在实现上是非常简单的，可以考虑的问题有
 
 1. 如何方便的增加新的接口
@@ -234,7 +233,7 @@ pub unsafe extern fn Java_com_linkedin_android_rsdroid_RustCore_run(
 ```
 
 这样在java里面就可以通过传入protobuf数据，来获得protobuf回调了
-在java里面生成对应的类，需要用到(protobuf-gradle-plugin)[https://github.com/google/protobuf-gradle-plugin]
+在java里面生成对应的类，需要用到 [protobuf-gradle-plugin](https://github.com/google/protobuf-gradle-plugin)
 ```
 def droidProtobufFolder = new File(rootDir, "rslib-bridge/proto").getAbsolutePath()
 
@@ -494,8 +493,8 @@ let result = catch_unwind(AssertUnwindSafe(|| {
 
 拉垮，超出我的想象
 
-
-| 接口 ｜ 1000次用时｜
+| 接口 | 1000次用时|
+|-----|-----------| 
 | SharedPrefrence.set(String, String)  | 30ms |
 | SharedPrefrence.get(String) | 16ms |
 | Native.Sled.set(String, String) | 900ms |
@@ -515,12 +514,14 @@ pub unsafe extern fn Java_com_linkedin_android_rsdroid_RustCore_empty(env: JNIEn
 
 ```
 
-| 接口 ｜ 1000次用时｜
+| 接口 | 1000次用时|
+|-------|---------|
 | Native.empty | 1ms | 
 
 所以问题出现在参数传递上,对于简单的读取和返回String, 就挺耗时的了
 
-| 接口 ｜ 1000次用时｜
+| 接口 | 1000次用时|
+|-------|---------|
 | Native.testStringGet() : String |  129ms  | 
 | Native.testStringSet(String) | 28ms |
 
@@ -545,7 +546,8 @@ pub unsafe extern fn Java_com_linkedin_android_rsdroid_RustCore_testByte(env: JN
 
 看上去也没有什么变化
 
-| 接口 ｜ 1000次用时｜
+| 接口 | 1000次用时|
+|-------|---------|
 | Native.testByteArray(ByteArray) 空接口 |  2ms  | 
 | Native.testByteArray(ByteArray) |  100ms  | 
 | Native.getByteArray(output : ByteArray) |  170ms  | 
@@ -555,7 +557,8 @@ pub unsafe extern fn Java_com_linkedin_android_rsdroid_RustCore_testByte(env: JN
 
 通过 get_direct_buffer_address 直接获取参数地址,但是也并没有改善
 
-| 接口 ｜ 1000次用时｜
+| 接口 | 1000次用时|
+|-------|---------|
 | Native.testByteArray(ByteBuffer) 空接口 |  0ms  | 
 | Native.testByteArray(ByteBuffer) |  100ms  | 
 | Native.getByteArray(output : ByteBuffer) |  200ms | 
@@ -578,10 +581,16 @@ pub unsafe extern fn Java_com_linkedin_android_rsdroid_RustCore_testByte(env: JN
 
 参考文档：
 
+[Anki Android](https://github.com/ankidroid/Anki-Android)
+
 [JNI tips | Android NDK | Android Developers](https://developer.android.com/training/articles/perf-jni)
+
 [How to Idiomatically Use Global Variables in Rust - SitePoint](https://www.sitepoint.com/rust-global-variables/#externallibraries)
+
 [google/protobuf-gradle-plugin: Protobuf Plugin for Gradle (github.com)](https://github.com/google/protobuf-gradle-plugin)
+
 [spacejam/sled: the champagne of beta embedded databases (github.com)](https://github.com/spacejam/sled/)
+
 [jni - Rust (docs.rs)](https://docs.rs/jni/0.19.0/jni/index.html)
 
 
