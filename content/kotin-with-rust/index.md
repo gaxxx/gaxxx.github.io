@@ -495,7 +495,7 @@ let result = catch_unwind(AssertUnwindSafe(|| {
 
 | 接口 | 1000次用时|
 |-----|-----------| 
-| SharedPrefrence.set(String, String)  | 30ms |
+| SharedPrefrence.set(String, String)  | 410ms |
 | SharedPrefrence.get(String) | 16ms |
 | Native.Sled.set(String, String) | 900ms |
 | Native.Sled.get(String) : String | 800ms | 
