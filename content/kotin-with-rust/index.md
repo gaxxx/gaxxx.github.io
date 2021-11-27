@@ -13,11 +13,14 @@ tags = ["rust", "Android"]
 ## 背景
 最近在看Android下面的高性能kv store, 突然想到的这个idea，找个高性能的rust kvstore集成到Android项目，然后通过jni调用, 不就完了吗. 然后就一脚踩到坑里面了. 
 
+[代码在这里](https://github.com/gaxxx/KotlinRustProto)
+
 Jni是一个非常成熟的机制了，通过rust导出C函数也是非常可靠的，所以在实现上是非常简单的，可以考虑的问题有
 
 1. 如何方便的增加新的接口
 2. 如何log native code的错误
 3. 如何进行性能优化
+
 
 ## 实现
 
