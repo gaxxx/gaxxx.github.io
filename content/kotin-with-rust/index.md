@@ -570,14 +570,22 @@ pub unsafe extern fn Java_com_linkedin_android_rsdroid_RustCore_testByte(env: JN
 {{ resize_image(path='perf.png', width=600, height= 320, op = "fill")}}
 
 
+更新
+
+* 我发现可以在rust直接拿到入参的指针，这样能更快的解析protobuf.
+* 通过类似的方式，甚至可以在java实现类似mutliple return value的效果
+* 通过为了防止rust lib 和 java lib不同步，增加了signature校验
+
 
 ### 结论
 
-所以，通过 rust native直接调用jni的内存读写，效率比是java 内存读写差一些，但是比写文件要很多。可以进行的优化有
-
-1. 引入mmap增加对文件的读写
-2. 进一步优化入参和出参的读写
-3. 对于小的kv存取，jni的开销可能还是稍微大了一下，但是用在网络上面，应该会有更好的表现。
+1. rust的稳定性不错，没崩, 就是编译有点费头发
+2. Sled 是挺顶的，比内存就差一点，如果加个java 缓存，说不定就起飞了. 但是还不太能用在产品系统，因为
+  * 不支持multi proccess
+  * Sled写文件是定时,默认是200ms，可能丢一点点数据...
+3. Lmdb 还可以，但是没有想象中的好, 能用.
+4. 对于小的kv存取，jni的开销可能还是稍微大了一下，但是用在网络上面，应该会有更好的表现。
+5. 有了protobuf，rust就可以跟其他语言联调了，所以下一次我可能要搞搞flutter
 
 参考文档：
 
