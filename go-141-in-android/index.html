@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <title>
+Setup Go for Android &middot; siwu&#x27;s blog
+</title>
+    <link rel="stylesheet" href="https://blog.gaxxx.me/slim.css">
+    
+    
+</head>
+
+<body>
+    <div class="container">
+        
+<div class="header">
+    <h1 class="site-title"><a href="https:&#x2F;&#x2F;blog.gaxxx.me">siwu&#x27;s blog</a></h1>
+    <input id="search" class=".next" type="search" placeholder="Search" />
+    <p class="site-tagline"></p>
+    <div class="nav">
+        <a class="nav-btn" href="#">
+            <span class="ci ci-burger"></span>
+        </a>
+        <ul class="nav-list">
+            
+            
+            <li><a href="https:&#x2F;&#x2F;blog.gaxxx.me&#x2F;tags">Tags</a></li>
+            
+            
+            <li class="spacer">&ac;</li>
+            
+            
+            <li><a href="https://www.linkedin.com/in/gaxxx">LinkedIn</a></li>
+            
+            <li><a href="https://github.com/gaxxx">Github</a></li>
+            
+            
+        </ul>
+    </div>
+    <div class="search-results">
+    <ul class="search-results__items"></ul>
+    </div>
+
+</div>
+
+        <div class="content">
+            <div class="posts">
+                
+<div class="post">
+    
+    
+<h2 class="post-title"><a href="https:&#x2F;&#x2F;blog.gaxxx.me&#x2F;go-141-in-android&#x2F;">Setup Go for Android</a></h2>
+<div class="post-header">
+    <span class="post-date">February 09, 2015</span>
+    
+    <div class="post-tags">
+        
+        <span class="post-tag">#<a href="https://blog.gaxxx.me/tags/golang/">golang</a></span>
+        
+        <span class="post-tag">#<a href="https://blog.gaxxx.me/tags/android/">android</a></span>
+        
+    </div>
+    
+</div>
+
+    <div class="post-content">
+        <p>Build Android App in Android Studio with Go(1.4.1) support.</p>
+<span id="continue-reading"></span><h2 id="preparation">Preparation</h2>
+<ol>
+<li>Linux 64bits (Archlinux for me)</li>
+<li><a href="https://developer.android.com/tools/sdk/ndk/index.html#download">NDK</a></li>
+<li><a href="github.com/davecheney/golang-crosscompile.git">golang crosscompile</a></li>
+<li>golang mobile tools</li>
+<li><a href="https://github.com/gaxxx/go_jni_maker">golang jni maker</a></li>
+<li>android studio</li>
+</ol>
+<h2 id="install-ndk">Install NDK</h2>
+<ul>
+<li>Download &amp; Install NDK </li>
+</ul>
+<pre><code>&#x2F;&#x2F;for arch
+yaourt android-ndk
+</code></pre>
+<ul>
+<li>Make toolchains for ndk</li>
+</ul>
+<pre><code>&#x2F;&#x2F;set ndk root dir 
+export NDK_ROOT=&#x2F;opt&#x2F;android-ndk
+&#x2F;&#x2F;build toolchains
+cd $NDK_ROOT
+.&#x2F;build&#x2F;tools&#x2F;make-standalone-toolchain.sh --platform=android-9 --install-dir=$NDK_ROOT --ndk-dir=$NDK_ROOT --toolchain=arm-linux-androideabi-4.9
+</code></pre>
+<h2 id="golang-runtime-bootstrap-for-android">Golang runtime bootstrap (for android)</h2>
+<pre><code>&#x2F;&#x2F;get golang crosscompile 
+git clone https:&#x2F;&#x2F;github.com&#x2F;davecheney&#x2F;golang-crosscompile.git
+&#x2F;&#x2F;source build script
+source crosscompile.bash
+&#x2F;&#x2F;set some variables
+export GOARM=7
+export CC_FOR_TARGET=$NDK_ROOT&#x2F;bin&#x2F;arm-linux-androideabi-gcc
+&#x2F;&#x2F;!bootstrap
+go-crosscompile-build android&#x2F;arm
+</code></pre>
+<h2 id="get-mobile-tools">Get mobile tools</h2>
+<pre><code>go get golang.org&#x2F;x&#x2F;mobile
+</code></pre>
+<h2 id="get-jni-maker">Get Jni-maker</h2>
+<pre><code>git clone https:&#x2F;&#x2F;github.com&#x2F;gaxxx&#x2F;go_jni_maker
+</code></pre>
+<p>Final step</p>
+<ul>
+<li>create a golang library in $GOPATH</li>
+</ul>
+<pre><code>mkdir $GOPATH&#x2F;src&#x2F;testgojni
+cat &lt;&lt; &#x27;EOF&#x27; &gt; $GOPATH&#x2F;src&#x2F;testgojni&#x2F;test.go
+package testgojni
+func Test() int {
+    return 1
+}
+EOF
+</code></pre>
+<ul>
+<li>create a gradle based android studio project </li>
+</ul>
+<pre><code>&#x2F;&#x2F;copy &amp; set jni maker
+cp &lt;go_jni_maker&gt;  &lt;android_studio_project&gt;&#x2F;app&#x2F;
+&#x2F;&#x2F;set CC &amp; GOLIB in make.bash (if necc)
+CC=&#x2F;opt&#x2F;android-ndk&#x2F;bin&#x2F;arm-linux-androideabli-gcc
+GOLIB=testgojni
+</code></pre>
+<ul>
+<li>RUN make.bash</li>
+<li>insert init snippet in MainActivity</li>
+</ul>
+<pre><code>protected void onCreate(Bundle savedInstanceState) {
+    .....
+    Go.init(getApplicationContext());
+    Testgojni.Test();
+}
+</code></pre>
+<ul>
+<li>Have fun</li>
+</ul>
+
+    </div>
+    
+</div>
+
+            </div>
+            
+        </div>
+        
+<div class="footer">
+    
+    <p>Powered by <a href="https://getzola.org">Zola</a></p>
+    
+</div>
+
+    </div>
+    <script src="https://blog.gaxxx.me/js/slim.js"></script>
+    <script src="https://blog.gaxxx.me/js/elasticlunr.min.js"></script>
+    <script src="https://blog.gaxxx.me/search_index.zh.js"></script>
+    <script src="https://blog.gaxxx.me/js/lunr.stemmer.support.js"></script>
+    <script src="https://blog.gaxxx.me/js/lunr.zh.js"></script>
+    <script src="https://blog.gaxxx.me/js/search.js"></script>
+    
+</body>
+
+</html>

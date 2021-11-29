@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <title>
+抓取基于js的动态页面 &middot; siwu&#x27;s blog
+</title>
+    <link rel="stylesheet" href="https://blog.gaxxx.me/slim.css">
+    
+    
+</head>
+
+<body>
+    <div class="container">
+        
+<div class="header">
+    <h1 class="site-title"><a href="https:&#x2F;&#x2F;blog.gaxxx.me">siwu&#x27;s blog</a></h1>
+    <input id="search" class=".next" type="search" placeholder="Search" />
+    <p class="site-tagline"></p>
+    <div class="nav">
+        <a class="nav-btn" href="#">
+            <span class="ci ci-burger"></span>
+        </a>
+        <ul class="nav-list">
+            
+            
+            <li><a href="https:&#x2F;&#x2F;blog.gaxxx.me&#x2F;tags">Tags</a></li>
+            
+            
+            <li class="spacer">&ac;</li>
+            
+            
+            <li><a href="https://www.linkedin.com/in/gaxxx">LinkedIn</a></li>
+            
+            <li><a href="https://github.com/gaxxx">Github</a></li>
+            
+            
+        </ul>
+    </div>
+    <div class="search-results">
+    <ul class="search-results__items"></ul>
+    </div>
+
+</div>
+
+        <div class="content">
+            <div class="posts">
+                
+<div class="post">
+    
+    
+<h2 class="post-title"><a href="https:&#x2F;&#x2F;blog.gaxxx.me&#x2F;zhua-qu-ji-yu-jsde-dong-tai-ye-mian&#x2F;">抓取基于js的动态页面</a></h2>
+<div class="post-header">
+    <span class="post-date">September 21, 2014</span>
+    
+    <div class="post-tags">
+        
+        <span class="post-tag">#<a href="https://blog.gaxxx.me/tags/selenum/">selenum</a></span>
+        
+    </div>
+    
+</div>
+
+    <div class="post-content">
+        <p>最新做一个项目，需要抓取动态网页的内容，积累了一些经验，以下对于网页抓取做一个简单的总结</p>
+<span id="continue-reading"></span><h1 id="xi-tong-huan-jing">系统环境</h1>
+<ul>
+<li>OS: ArchLinux@64bits</li>
+<li>Packages: python2-pip 以及基于pip安装的 selenium, beautifulsoup4</li>
+</ul>
+<h1 id="dui-yu-jing-tai-nei-rong-de-huo-qu">对于静态内容的获取</h1>
+<p>对于静态内容的获取相对简单，只需要保证cookie正确就好了</p>
+<h2 id="wu-nao-zhi-jie-huo-qu">无脑直接获取</h2>
+<pre><code>import urllib2
+r = urllib2.urlopen(&quot;http:&#x2F;&#x2F;www.baidu.com&#x2F;&quot;)
+print r.read()
+</code></pre>
+<h2 id="dui-yu-xu-yao-deng-lu-de-jing-tai-nei-rong-de-huo-qu">对于需要登录的静态内容的获取</h2>
+<pre><code>import urllib2,urllib
+cookie = urllib2.HTTPCookieProcessor()
+opener = urllib2.build_opener(cookie)
+## 构造登录form格式的数据
+user_pass = [(&quot;email&quot;,&quot;abc@example.com&quot;),(&quot;password&quot;,&quot;lab&quot;),(&#x27;op&#x27;,&#x27;Log in&#x27;)]
+r = opener.open(&quot;http:&#x2F;&#x2F;example.com&#x2F;index.php?&quot;,urllib.urlencode(user_pass))
+print r.read()
+</code></pre>
+<h2 id="dui-yu-shi-yong-openiddeng-lu-de-jing-tai-nei-rong-de-huo-qu">对于使用OpenID登录的静态内容的获取</h2>
+<pre><code>#有些网站需要openid登录，采用oauth协议的话，我们可以先在chrome上正常登录，然后通过插件&quot;cookie.txt export&quot;,将cookie导出成cookie.txt
+import urllib2,urllib,cookielib
+cj = cookielib.FileCookieJar(&quot;.&#x2F;cookie.txt&quot;)
+cookie = urllib2.HTTPCookieProcessor(cj)
+opener = urllib2.build_opener(cookie)
+r = opener.open(&quot;http:&#x2F;&#x2F;example.com&#x2F;&quot;)
+print r.read()
+</code></pre>
+<h1 id="dui-yu-dong-tai-sheng-cheng-nei-rong-de-du-qu">对于动态生成内容的读取</h1>
+<p>对于动态生成的内容，主要指通过js动态生成的页面代码,参考知乎意见</p>
+<ul>
+<li>使用phantomjs &amp; caperjs , 调用js代码，js调用js，无缝结合效果好....</li>
+<li>采用selenium,调用浏览器进行渲染和内容获取</li>
+<li>采用scapy框架，集成pyV8进行大数据量抓取 (一淘的做法)</li>
+</ul>
+<h2 id="shi-yong-phantomjszhua-qu-nei-rong">使用phantomjs抓取内容</h2>
+<pre><code>#安装phantomjs
+#test.js文件
+var page = require(&#x27;webpage&#x27;).create();
+page.onResourceReceived = function(data) {
+    console.log(&quot;Got a url:&quot; + data.url);
+    console.log(&quot;Got a type:&quot; + data.contentType);
+};
+page.open(&#x27;http:&#x2F;&#x2F;www.baidu.com&#x27;,function(status){
+        phantom.exit()
+})
+
+#phantomjs test.js
+</code></pre>
+<p>phantomjs 比较有意思的一点，支持网站截图，可以把页面渲染成png
+但phantomjs虽好，但是不支持文件下载，有个download_support branch可以尝试一下</p>
+<h2 id="shi-yong-seleniumxia-zai-shu-ju">使用selenium下载数据</h2>
+<p>使用selenium的好处就是，浏览器能干的事情，selenium脚本也能干。
+常见用法就是使用selenium自动调用button，测试页面反馈，但这里我们使用它对某网站进行下载。</p>
+<pre><code>from selenium import webdriver
+import glob
+import time
+options = webdriver.ChromeOptions()
+#新建一个空的chrome配置目录
+options.add_argument(&#x27;--user-data-dir=.&#x2F;chrome&#x27;)
+browser = webdriver.Chrome(chrome_options=options)
+#开始下载某个文件，会打开一个chromium浏览器,可以在上面完成，登录，下载插件等操作,然后退出本脚本，重新运行，就可以正常下载内容了
+browser.get(&quot;http:&#x2F;&#x2F;example.com&#x2F;test.mp4&quot;)
+#通过文件后缀判断文件是否下载
+while True：
+    &#x2F;&#x2F;文件下载中
+    files = glob.glob(os.path.join(&quot;xxxx&#x2F;Downloads&quot;,&quot;*.crdownload&quot;))
+    if len(files) == 0:
+        time.sleep(0.1)
+    else:
+        break
+
+&#x2F;&#x2F;文件下载完成
+while True:
+    files = glob.glob(os.path.join(&quot;xxxx&#x2F;Downloads&quot;,&quot;*.crdownload&quot;))
+    if len(files) &gt; 0:
+        time.sleep(0.1)
+    else:
+        break
+
+&#x2F;&#x2F;文件转移到其他地方
+try:
+    out = glob.glob(os.path.join(&quot;xxxx&#x2F;Downloads&quot;,&quot;*.mp4&quot;))[0]
+    shuitl.move(out,&quot;&#x2F;tmp&#x2F;test.mp4&quot;)
+except:
+    print &quot;failed to get %s&quot; % out
+</code></pre>
+<h2 id="shi-yong-scrapyjin-xing-zhua-qu-todo">使用scrapy进行抓取 (TODO)</h2>
+<h1 id="fu-lu-yi-wan-jing-tang">附录： 一碗靓汤</h1>
+<p>Beautiful Soup是python特别好用的框架之一，可以用来分析静态html的结构，找出相关的内容
+常用方式</p>
+<pre><code>#获取youku首推的视频
+from bs4 import BeautifulSoup
+import urllib2
+r = urllib2.urlopen(&quot;http:&#x2F;&#x2F;www.youku.com&#x2F;&quot;)
+soup = BeautifulSoup(r.read())
+r.close()
+#打印首推视频的标题
+print soup.find(&quot;div&quot;,&quot;v-thumb&quot;).find(&quot;img&quot;).get(&quot;alt&quot;)
+</code></pre>
+
+    </div>
+    
+</div>
+
+            </div>
+            
+        </div>
+        
+<div class="footer">
+    
+    <p>Powered by <a href="https://getzola.org">Zola</a></p>
+    
+</div>
+
+    </div>
+    <script src="https://blog.gaxxx.me/js/slim.js"></script>
+    <script src="https://blog.gaxxx.me/js/elasticlunr.min.js"></script>
+    <script src="https://blog.gaxxx.me/search_index.zh.js"></script>
+    <script src="https://blog.gaxxx.me/js/lunr.stemmer.support.js"></script>
+    <script src="https://blog.gaxxx.me/js/lunr.zh.js"></script>
+    <script src="https://blog.gaxxx.me/js/search.js"></script>
+    
+</body>
+
+</html>
