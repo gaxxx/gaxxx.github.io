@@ -29,6 +29,7 @@ Jni是一个非常成熟的机制了，通过rust导出C函数也是非常可靠
 3. 更好的封装protobuf
 4. 集成一个lmdb
 5. tunning
+6. MMKV
 
 
 ### 实现一个简单的jni调用
@@ -572,15 +573,11 @@ pub unsafe extern fn Java_com_linkedin_android_rsdroid_RustCore_testByte(env: JN
 
 {{ resize_image(path='perf.png', width=600, height= 320, op = "fill")}}
 
-
 更新
 
 * 我发现可以在rust直接拿到入参的指针，这样能更快的解析protobuf.
 * 通过类似的方式，甚至可以在java实现类似mutliple return value的效果
 * 通过为了防止rust lib 和 java lib不同步，增加了signature校验
-
-
-### 结论
 
 1. rust的稳定性不错，没崩, 就是编译有点费头发
 2. Sled 是挺顶的，比内存就差一点，如果加个java 缓存，说不定就起飞了. 但是还不太能用在产品系统，因为
@@ -589,6 +586,19 @@ pub unsafe extern fn Java_com_linkedin_android_rsdroid_RustCore_testByte(env: JN
 3. Lmdb 还可以，但是没有想象中的好, 能用.
 4. 对于小的kv存取，jni的开销可能还是稍微大了一下，但是用在网络上面，应该会有更好的表现。
 5. 有了protobuf，rust就可以跟其他语言联调了，所以下一次我可能要搞搞flutter
+
+
+### MMKV
+本来以为可以收尾了，手贱集成了MMKV，然后脸被打肿了, [MMKV](https://github.com/Tencent/MMKV) 的速度，基本上java map差不多了，然后看了一下他们的源码，感觉没用什么黑科技啊，然后，我就发现
+
+1. log耗时大概100ms
+2. protobuf encoding / decoding 大概100ms
+
+这样算起来， sled 跟 MMKV也差不了多少了，就酱.
+
+
+
+
 
 参考文档：
 
@@ -603,6 +613,9 @@ pub unsafe extern fn Java_com_linkedin_android_rsdroid_RustCore_testByte(env: JN
 [spacejam/sled: the champagne of beta embedded databases (github.com)](https://github.com/spacejam/sled/)
 
 [jni - Rust (docs.rs)](https://docs.rs/jni/0.19.0/jni/index.html)
+
+[Best practices for using the Java Native Interface](https://developer.ibm.com/articles/j-jni/)
+
 
 
 
