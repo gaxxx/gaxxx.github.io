@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <title>
+Simplify your life with OpenClaw - 1 &middot; siwu&#x27;s blog
+</title>
+    <link rel="stylesheet" href="https://gaxxx.github.io/slim.css">
+    
+    
+</head>
+
+<body>
+    <div class="container">
+        
+<div class="header">
+    <h1 class="site-title"><a href="https:&#x2F;&#x2F;gaxxx.github.io">siwu&#x27;s blog</a></h1>
+    <input id="search" class=".next" type="search" placeholder="Search" />
+    <p class="site-tagline"></p>
+    <div class="nav">
+        <a class="nav-btn" href="#">
+            <span class="ci ci-burger"></span>
+        </a>
+        <ul class="nav-list">
+            
+            
+            <li><a href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;tags">Tags</a></li>
+            
+            
+            <li class="spacer">&ac;</li>
+            
+            
+            <li><a href="https://www.linkedin.com/in/gaxxx">LinkedIn</a></li>
+            
+            <li><a href="https://github.com/gaxxx">Github</a></li>
+            
+            
+        </ul>
+    </div>
+    <div class="search-results">
+    <ul class="search-results__items"></ul>
+    </div>
+
+</div>
+
+        <div class="content">
+            <div class="posts">
+                
+<div class="post">
+    
+    
+<h2 class="post-title"><a href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;openclaw&#x2F;">Simplify your life with OpenClaw - 1</a></h2>
+<div class="post-header">
+    <span class="post-date">February 10, 2026</span>
+    
+    <div class="post-tags">
+        
+        <span class="post-tag">#<a href="https://gaxxx.github.io/tags/ai/">ai</a></span>
+        
+        <span class="post-tag">#<a href="https://gaxxx.github.io/tags/openclaw/">openclaw</a></span>
+        
+    </div>
+    
+</div>
+
+    
+
+  
+    
+  
+
+
+    <div class="post-content">
+        <p>I initially thought OpenClaw was just another toy, but after using it for a while, I realized how powerful it is. It reminds me of Tesla's FSD—something you don't trust at first, but once you try it, you'll never go back.</p>
+<span id="continue-reading"></span><h2 id="setup">Setup</h2>
+<p><strong>Use Opus! Use Opus! Use Opus!</strong></p>
+<p>I've tried several models, but the Opus model makes me feel like I'm talking to a real person.</p>
+<p>Instead of the standard setup on Mac Mini, I run OpenClaw in Docker to feel more secure about data and stability.</p>
+<p>Ask your AI:</p>
+<pre><code>How do I create an OpenClaw gateway using ghcr.io/openclaw/openclaw?
+</code></pre>
+<h2 id="connecting-channels">Connecting Channels</h2>
+<p>I've tested both Telegram and WhatsApp; the Telegram channel is more stable and reliable.</p>
+<p>After setting up the channel, you can chat with OpenClaw to customize your character, including OpenClaw's personality and communication style.</p>
+<h2 id="setting-up-your-tools">Setting Up Your Tools</h2>
+<p>Although OpenClaw has built-in memory and cron capabilities, they're not as stable or reliable as dedicated SaaS services. My personal recommendations are:</p>
+<ul>
+<li><strong>Gmail</strong>: Ask OpenClaw to set up Google Cloud credentials for Gmail, Google Calendar, and Google Speech-to-Text services. This requires zero coding—you just need to click the link provided by OpenClaw and parse the returned credentials if needed. Afterward, you can fetch emails and calendars, and have OpenClaw summarize them via chat. <strong>Tip</strong>: Since OpenClaw sometimes forgets credential paths, explicitly remind it:</li>
+</ul>
+<pre><code>Remember this!
+
+All files are in the workspace. Don&#39;t use /home/node/**
+
+/home/node/.openclaw/workspace/     ← persistent storage
+├── scripts/                        ← custom scripts
+├── secrets/                        ← credentials (gitignored)
+├── notion/                         ← Notion integration
+└── memory/                         ← daily memory logs
+
+/home/node/                         ← Docker container (data lost on restart—don&#39;t use!)
+</code></pre>
+<ul>
+<li>
+<p><strong>Microsoft To Do</strong>: Ask OpenClaw to link your Microsoft To Do account so you can manage tasks through chat.</p>
+</li>
+<li>
+<p><strong>Notion</strong>: Ask OpenClaw to link your Notion workspace. This serves as a persistent knowledge base and storage layer alongside OpenClaw's memory.</p>
+</li>
+</ul>
+<h2 id="case-study-managing-kids-chores">Case Study: Managing Kids' Chores</h2>
+<p>For simple tasks like email checking or task management, you just ask OpenClaw. Here's how I used it to manage chores in my household.</p>
+<p>In my home, kids earn game time by doing chores. We track the list on WeChat and update it daily. Every time they complete a chore, I need to calculate their earned game time based on the chore list.</p>
+<p>First, I explained the rules to OpenClaw and asked it to generate a workflow:</p>
+<pre><code>This is the data for my children&#39;s game time and chore hours. Please manage and remember this in Notion.
+
+# Mom&#39;s Approval Voucher Exchange
+20m Game Time
+3x Jack Vouchers
+5x Ye Vouchers
+
+# Game Time Earned per Hour of Chore
+Ye: 10 minutes
+Jack: 20 minutes
+
+# Historical Records
+Jack: 67 hrs
+Ye: 8 hrs
+
+# Recent Activity
+Name        Game      Work        Vouchers
+Jack        11h 10m   23h 20m     3
+Ye          0         20m         0
+</code></pre>
+<p>OpenClaw created a Notion page to store this data.</p>
+<p>I then asked OpenClaw to refine the rules and correct some misunderstandings. I also tested edge cases with sample questions:</p>
+<ul>
+<li>"If Jack works for an hour, how much game time does he earn?"</li>
+<li>"If Jack exchanges 10 hours of chores for 1 hour of game time, what's his new balance?"</li>
+</ul>
+<p>The result? A complete chore management system backed by a Notion database with automatic history tracking and calculations.</p>
+<h2 id="skills-and-extensibility">Skills and Extensibility</h2>
+<p>OpenClaw has a skill system—small plugins that extend its capabilities. I'm still exploring what's possible, but with one simple ask, I built my first custom skill:</p>
+<pre><code>Based on our conversation, can you create a skill template for building similar rule systems?
+</code></pre>
+<p>OpenClaw responded:</p>
+<pre><code>Done! Created rule-creator skill ✅
+
+Location: skills/rule-creator/SKILL.md
+Package: rule-creator.skill
+
+Core Workflow:
+
+Who    - Define Entities
+What   - Define Resources
+How    - Define Operations
+Validate - Verify understanding with examples
+Build  - Construct the system only as the final step
+
+This skill will now automatically trigger whenever new rules or tracking systems are created. 🗿
+</code></pre>
+<p>No coding required—just ask the AI to learn, summarize, and evolve.</p>
+<h2 id="security">Security</h2>
+<p>OpenClaw cannot guarantee to be completely secure or private. My personal approach:</p>
+<ol>
+<li>Host the gateway on your home network with a strong authentication token</li>
+<li>Use Tailscale to access it remotely, but always route through a VPN</li>
+<li>Pair specific devices and block unauthorized access</li>
+</ol>
+<h2 id="personal-reflection">Personal Reflection</h2>
+<p>When conversing with OpenClaw, I often feel like I'm raising a child—it forgets things sometimes. What works is consistently reinforcing correct behavior and context. Eventually, it learns and improves.</p>
+<h2 id="future-directions">Future Directions</h2>
+<p>I'm still actively exploring OpenClaw's potential and looking for ways to organize my work while respecting company policies around data and automation.</p>
+
+    </div>
+    
+</div>
+
+            </div>
+            
+        </div>
+        
+<div class="footer">
+    
+    <p>Powered by <a href="https://getzola.org">Zola</a></p>
+    
+</div>
+
+    </div>
+    <script src="https://gaxxx.github.io/js/slim.js"></script>
+    <script src="https://gaxxx.github.io/js/elasticlunr.min.js"></script>
+    <script src="https://gaxxx.github.io/search_index.en.js"></script>
+    <script src="https://gaxxx.github.io/js/lunr.stemmer.support.js"></script>
+    <script src="https://gaxxx.github.io/js/lunr.en.js"></script>
+    <script src="https://gaxxx.github.io/js/search.js"></script>
+    
+</body>
+
+</html>
