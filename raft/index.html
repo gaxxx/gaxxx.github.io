@@ -5,9 +5,9 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
     <title>
-Raft 实现笔记 (6.824 2021 Spring) &middot; siwu&#x27;s blog
+Raft Implementation Notes (6.824 2021 Spring) &middot; siwu&#x27;s blog
 </title>
-    <link rel="stylesheet" href="https://blog.gaxxx.me/slim.css">
+    <link rel="stylesheet" href="https://gaxxx.github.io/slim.css">
     
     
 </head>
@@ -16,7 +16,7 @@ Raft 实现笔记 (6.824 2021 Spring) &middot; siwu&#x27;s blog
     <div class="container">
         
 <div class="header">
-    <h1 class="site-title"><a href="https:&#x2F;&#x2F;blog.gaxxx.me">siwu&#x27;s blog</a></h1>
+    <h1 class="site-title"><a href="https:&#x2F;&#x2F;gaxxx.github.io">siwu&#x27;s blog</a></h1>
     <input id="search" class=".next" type="search" placeholder="Search" />
     <p class="site-tagline"></p>
     <div class="nav">
@@ -26,7 +26,7 @@ Raft 实现笔记 (6.824 2021 Spring) &middot; siwu&#x27;s blog
         <ul class="nav-list">
             
             
-            <li><a href="https:&#x2F;&#x2F;blog.gaxxx.me&#x2F;tags">Tags</a></li>
+            <li><a href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;tags">Tags</a></li>
             
             
             <li class="spacer">&ac;</li>
@@ -51,25 +51,40 @@ Raft 实现笔记 (6.824 2021 Spring) &middot; siwu&#x27;s blog
 <div class="post">
     
     
-<h2 class="post-title"><a href="https:&#x2F;&#x2F;blog.gaxxx.me&#x2F;raft&#x2F;">Raft 实现笔记 (6.824 2021 Spring)</a></h2>
+<h2 class="post-title"><a href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;raft&#x2F;">Raft Implementation Notes (6.824 2021 Spring)</a></h2>
 <div class="post-header">
     <span class="post-date">November 05, 2021</span>
     
     <div class="post-tags">
         
-        <span class="post-tag">#<a href="https://blog.gaxxx.me/tags/golang/">golang</a></span>
+        <span class="post-tag">#<a href="https://gaxxx.github.io/tags/golang/">golang</a></span>
         
-        <span class="post-tag">#<a href="https://blog.gaxxx.me/tags/raft/">raft</a></span>
+        <span class="post-tag">#<a href="https://gaxxx.github.io/tags/raft/">raft</a></span>
         
     </div>
     
 </div>
 
+    
+
+  
+    
+  
+    
+    <a class="lang-toggle" href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;zh&#x2F;raft&#x2F;">
+      中文
+    </a>
+    
+  
+
+
     <div class="post-content">
-        <p>完成了年初的flag
+        <p>Completed my new year's resolution:
 Implement raft &amp; raft based distributed kv store.</p>
-<span id="continue-reading"></span><h2 id="bei-jing">背景</h2>
-<p>放个图证明自己，爱过.</p>
+<span id="continue-reading"></span><h2 id="background">Background</h2>
+<p>Here's a screenshot to prove I did it.</p>
+
+
 <table>
 <tr>
    
@@ -84,109 +99,112 @@ Implement raft &amp; raft based distributed kv store.</p>
   
   
   
-  <td><a href="https://blog.gaxxx.me/raft/raft_0.png" target="_blank"><img src="https:&#x2F;&#x2F;blog.gaxxx.me&#x2F;processed_images&#x2F;ddd00c6ef389719400.png" alt="https://blog.gaxxx.me/raft/raft_0.png" /></a></td>
+  
+  <td><a href="https://gaxxx.github.io/raft/raft_0.png" target="_blank"><img src="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;processed_images&#x2F;raft_0.22c3188687b451a9.png" alt="https://gaxxx.github.io/raft/raft_0.png" /></a></td>
   
   
   
-  <td><a href="https://blog.gaxxx.me/raft/raft_1.png" target="_blank"><img src="https:&#x2F;&#x2F;blog.gaxxx.me&#x2F;processed_images&#x2F;5f15c8a8fcaa410300.png" alt="https://blog.gaxxx.me/raft/raft_1.png" /></a></td>
+  
+  <td><a href="https://gaxxx.github.io/raft/raft_1.png" target="_blank"><img src="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;processed_images&#x2F;raft_1.306429b1ab31c06f.png" alt="https://gaxxx.github.io/raft/raft_1.png" /></a></td>
   
   
   
-  <td><a href="https://blog.gaxxx.me/raft/raft_2.png" target="_blank"><img src="https:&#x2F;&#x2F;blog.gaxxx.me&#x2F;processed_images&#x2F;6c874949cac7970100.png" alt="https://blog.gaxxx.me/raft/raft_2.png" /></a></td>
+  
+  <td><a href="https://gaxxx.github.io/raft/raft_2.png" target="_blank"><img src="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;processed_images&#x2F;raft_2.257e2ab1726ef4b0.png" alt="https://gaxxx.github.io/raft/raft_2.png" /></a></td>
   
 </tr>
 </table>
-<h2 id="mu-biao">目标</h2>
-<p>学习<a href="https://pdos.csail.mit.edu/6.824/general.html">6.824课程</a>，以及相关的分布式知识，并且基于lab环境</p>
+<h2 id="goals">Goals</h2>
+<p>Study the <a rel="external" href="https://pdos.csail.mit.edu/6.824/general.html">6.824 course</a> and related distributed systems knowledge, and based on the lab environment:</p>
 <ul>
-<li>完成raft的分布式日志实现</li>
-<li>完成基于raft log的分布式kvstore</li>
+<li>Implement distributed log replication with Raft</li>
+<li>Implement a distributed KV store based on Raft log</li>
 </ul>
-<p>在踩坑的过程中，我碰到了这些问题或者有一些思考</p>
+<p>During the process, I encountered these issues and had some thoughts:</p>
 <ul>
-<li>跑一次test的时候，没啥问题，但是跑十次可能错一两次</li>
-<li>碰到死锁怎么办，怎么处理不同的模块之间的锁</li>
-<li>leader在正常工作时，有一个乱入的leader，发送了一个高term请求，如何快速recover</li>
-<li>用Raft怎么做zookeep或者kafka</li>
-<li>如何进行performance tuning</li>
-<li>如何scale</li>
+<li>Tests pass once but fail occasionally when run 10 times</li>
+<li>How to handle deadlocks, how to manage locks across different modules</li>
+<li>When a leader is working normally, a rogue leader sends a high-term request - how to recover quickly</li>
+<li>How to implement ZooKeeper or Kafka with Raft</li>
+<li>How to do performance tuning</li>
+<li>How to scale</li>
 </ul>
-<p>在实现过程中，我都有了一些看法，可以直接跳到最后部分。。。</p>
-<p><a href="https://blog.gaxxx.me/raft/prepare/">准备</a></p>
-<p>以下是每个test的实现，我会简单描叙</p>
+<p>I developed views on all of these during implementation - you can jump to the final section...</p>
+<p><a href="https://gaxxx.github.io/raft/prepare/">Preparation</a></p>
+<p>Below is the implementation for each test, where I briefly describe:</p>
 <ul>
-<li>要做的事情</li>
-<li>技术细节</li>
-<li>伪代码</li>
-<li>技术细节的实现</li>
+<li>What needs to be done</li>
+<li>Technical details</li>
+<li>Pseudocode</li>
+<li>Implementation of technical details</li>
 </ul>
-<h2 id="shi-xian">实现</h2>
-<p><a href="https://blog.gaxxx.me/raft/raft/">raft</a></p>
-<p><a href="https://blog.gaxxx.me/raft/kvraft/">kvraft</a></p>
-<p><a href="https://blog.gaxxx.me/raft/shardkv/">shardkv</a></p>
-<h2 id="si-kao">思考</h2>
+<h2 id="implementation">Implementation</h2>
+<p><a href="https://gaxxx.github.io/raft/raft/">raft</a></p>
+<p><a href="https://gaxxx.github.io/raft/kvraft/">kvraft</a></p>
+<p><a href="https://gaxxx.github.io/raft/shardkv/">shardkv</a></p>
+<h2 id="reflections">Reflections</h2>
 <ul>
-<li>跑一次test的时候，没啥问题，但是跑十次可能错一两次
+<li>Tests pass once but fail occasionally when run 10 times
 <ul>
-<li><a href="https://blog.gaxxx.me/raft/raft/#when-to-save">raft 细节处理</a></li>
-<li>出现偶然failure的情况一般都是persist的问题。 Raft paper里面对于commit的条件是，when the log replicate.  在处理heartbeat时，如果不存盘就返回，并且返回leader这个数据当前最新的log位置的话， leader可能就直接apply了。 这个时候如果发生crash， 就会出现问题。</li>
-<li>但是如果每次heartbeat有新数据需要存盘的话，可能会比较慢，尤其是对于arm主机来说。而且这是一个一次同时挂两台机器，才会出现的问题，所以实际操作中，有些实现是写到内存就返回的。</li>
-<li>还有一种方式是，异步存数据，但是下一个heartbeat再确认数据replicated, 这样正确性是OK的，但是过不了测试，因为慢。当然，如果实际系统里面，客户端对于latency 不敏感的话，是可以work的。</li>
-</ul>
-</li>
-<li>碰到死锁怎么办，怎么处理不同的模块之间锁
-<ul>
-<li><a href="https://blog.gaxxx.me/raft/raft/#avoid-lock">外部交互</a></li>
-<li>每个模块别把锁暴露给别人就可以了，理论上说加锁的scope是这样的 shardkv &gt; kvraft &gt; raft</li>
+<li><a href="https://gaxxx.github.io/raft/raft/#when-to-save">Raft detail handling</a></li>
+<li>Occasional failures are usually persistence issues. The Raft paper's commit condition is "when the log is replicated." When handling heartbeats, if you return without persisting and report the latest log position to the leader, the leader may directly apply. If a crash occurs at this point, problems arise.</li>
+<li>However, persisting on every heartbeat with new data can be slow, especially on ARM machines. And this is a problem that only occurs when two machines fail simultaneously, so some implementations just write to memory.</li>
+<li>Another approach is async persistence, confirming data replication in the next heartbeat. This is correct but fails tests because it's slow. In practice, if clients aren't latency-sensitive, it works.</li>
 </ul>
 </li>
-<li>leader在正常工作时，有一个乱入的leader，发送了一个高term请求，如何快速recover
+<li>How to handle deadlocks, how to manage locks across modules
 <ul>
-<li><a href="https://blog.gaxxx.me/raft/raft/#raft-detail">快速恢复</a></li>
+<li><a href="https://gaxxx.github.io/raft/raft/#avoid-lock">External interaction</a></li>
+<li>Just don't expose locks to other modules. Theoretically, the lock scope is: shardkv &gt; kvraft &gt; raft</li>
 </ul>
 </li>
-<li>用Raft怎么实现zookeep或者kafka类似的功能
+<li>When a leader is working normally, a rogue leader sends a high-term request - how to recover quickly
 <ul>
-<li>Raft的logid与zk的lastId很相似，写入时，我们可以与leader建立一个连接， 然后执行完之后拿到一个logid,记为write_id. 在Get的时候，我们可以与follower建立一个长连接，只要所有的Get请求的idx id比 write_id大，那不就妥了吗。。。</li>
-<li>Kafka 集群，比如3个服务器，一台crash之后，其他server会起来take over， 3台服务器可以挂两个。 kafka的实现是因为它还挂了一个zk, raft也可以在前面挂一个shartctler对peer进行测试，如果3台挂了两台，shardctler可以增加一个新的group, 这个group里面只有一个活着的peer</li>
+<li><a href="https://gaxxx.github.io/raft/raft/#raft-detail">Fast recovery</a></li>
 </ul>
 </li>
-<li>如何做performance tuning
+<li>How to implement ZooKeeper or Kafka-like functionality with Raft
+<ul>
+<li>Raft's logid is similar to ZK's lastId. For writes, establish a connection with the leader, execute, and get a logid as write_id. For Gets, establish a long connection with a follower - as long as all Get requests have idx greater than write_id, it works...</li>
+<li>Kafka cluster with 3 servers - after one crashes, others take over; 3 servers can tolerate 2 failures. Kafka achieves this with ZK. Raft can also have a shardctrl in front to test peers. If 2 of 3 fail, shardctrl can add a new group with just the surviving peer.</li>
+</ul>
+</li>
+<li>How to do performance tuning
 <ul>
 <li>
-<p>对于一个数据来说， commit的时间是</p>
+<p>For a piece of data, commit time is:</p>
 <ul>
 <li>client —request—&gt; leader</li>
 <li>leader → persist</li>
-<li>leader —heartbeat —&gt; peer</li>
+<li>leader —heartbeat—&gt; peer</li>
 <li>peer → persist</li>
-<li>peer —hearbeat reply → server</li>
+<li>peer —heartbeat reply→ server</li>
 </ul>
-<p>如果为了提升性能， 可以</p>
+<p>To improve performance:</p>
 <ol>
-<li>persist用ssd或者用memory</li>
-<li>persist用异步来做，这样client latency会增加</li>
-<li>减少网络latency, 减少peer的数量，peer之后可以接另外的raft group</li>
+<li>Use SSD or memory for persistence</li>
+<li>Do async persistence (increases client latency)</li>
+<li>Reduce network latency, reduce peer count; peers can connect to other raft groups</li>
 </ol>
 </li>
 </ul>
 </li>
-<li>如何做scale
+<li>How to scale
 <ul>
-<li>如果写请求过多，可以做multi raft group</li>
-<li>Get的请求可以放在follower里面，如果对于实时性要求不高的话</li>
-<li>可以使用多级的raft group，不同级别的raft group可以用不同的策略处理 OnMessage , 也可用不同的粒度来 Save Snapshot</li>
+<li>For heavy writes, use multi raft groups</li>
+<li>Get requests can go to followers if real-time consistency isn't critical</li>
+<li>Use multi-level raft groups with different OnMessage strategies and different granularity for Save Snapshot</li>
 </ul>
 </li>
 </ul>
-<h2 id="can-kao-ju-shuo-tie-de-yue-duo-yue-zhuan-ye">参考 (据说贴得越多越专业）</h2>
+<h2 id="references-they-say-the-more-you-cite-the-more-professional-it-looks">References (they say the more you cite, the more professional it looks)</h2>
 <ul>
-<li><a href="https://pdos.csail.mit.edu/6.824/index.html">6.824 Home Page: Spring 2021 (mit.edu)</a></li>
-<li><a href="https://pdos.csail.mit.edu/6.824/papers/gfs.pdf">https://pdos.csail.mit.edu/6.824/papers/gfs.pdf</a></li>
-<li><a href="https://pdos.csail.mit.edu/6.824/papers/vm-ft.pdf">https://pdos.csail.mit.edu/6.824/papers/vm-ft.pdf</a></li>
-<li><a href="https://pdos.csail.mit.edu/6.824/papers/gfs.pdf">https://pdos.csail.mit.edu/6.824/papers/gfs.pdf</a></li>
-<li><a href="https://pdos.csail.mit.edu/6.824/papers/farm-2015.pdf">farm-2015.pdf (mit.edu)</a></li>
-<li><a href="https://pdos.csail.mit.edu/6.824/papers/mdcc.pdf">mdcc.pdf (mit.edu)</a></li>
+<li><a rel="external" href="https://pdos.csail.mit.edu/6.824/index.html">6.824 Home Page: Spring 2021 (mit.edu)</a></li>
+<li><a rel="external" href="https://pdos.csail.mit.edu/6.824/papers/gfs.pdf">https://pdos.csail.mit.edu/6.824/papers/gfs.pdf</a></li>
+<li><a rel="external" href="https://pdos.csail.mit.edu/6.824/papers/vm-ft.pdf">https://pdos.csail.mit.edu/6.824/papers/vm-ft.pdf</a></li>
+<li><a rel="external" href="https://pdos.csail.mit.edu/6.824/papers/gfs.pdf">https://pdos.csail.mit.edu/6.824/papers/gfs.pdf</a></li>
+<li><a rel="external" href="https://pdos.csail.mit.edu/6.824/papers/farm-2015.pdf">farm-2015.pdf (mit.edu)</a></li>
+<li><a rel="external" href="https://pdos.csail.mit.edu/6.824/papers/mdcc.pdf">mdcc.pdf (mit.edu)</a></li>
 </ul>
 
     </div>
@@ -204,12 +222,12 @@ Implement raft &amp; raft based distributed kv store.</p>
 </div>
 
     </div>
-    <script src="https://blog.gaxxx.me/js/slim.js"></script>
-    <script src="https://blog.gaxxx.me/js/elasticlunr.min.js"></script>
-    <script src="https://blog.gaxxx.me/search_index.zh.js"></script>
-    <script src="https://blog.gaxxx.me/js/lunr.stemmer.support.js"></script>
-    <script src="https://blog.gaxxx.me/js/lunr.zh.js"></script>
-    <script src="https://blog.gaxxx.me/js/search.js"></script>
+    <script src="https://gaxxx.github.io/js/slim.js"></script>
+    <script src="https://gaxxx.github.io/js/elasticlunr.min.js"></script>
+    <script src="https://gaxxx.github.io/search_index.en.js"></script>
+    <script src="https://gaxxx.github.io/js/lunr.stemmer.support.js"></script>
+    <script src="https://gaxxx.github.io/js/lunr.en.js"></script>
+    <script src="https://gaxxx.github.io/js/search.js"></script>
     
 </body>
 

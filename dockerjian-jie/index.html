@@ -5,9 +5,9 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
     <title>
-Docker简介 &middot; siwu&#x27;s blog
+Introduction to Docker &middot; siwu&#x27;s blog
 </title>
-    <link rel="stylesheet" href="https://blog.gaxxx.me/slim.css">
+    <link rel="stylesheet" href="https://gaxxx.github.io/slim.css">
     
     
 </head>
@@ -16,7 +16,7 @@ Docker简介 &middot; siwu&#x27;s blog
     <div class="container">
         
 <div class="header">
-    <h1 class="site-title"><a href="https:&#x2F;&#x2F;blog.gaxxx.me">siwu&#x27;s blog</a></h1>
+    <h1 class="site-title"><a href="https:&#x2F;&#x2F;gaxxx.github.io">siwu&#x27;s blog</a></h1>
     <input id="search" class=".next" type="search" placeholder="Search" />
     <p class="site-tagline"></p>
     <div class="nav">
@@ -26,7 +26,7 @@ Docker简介 &middot; siwu&#x27;s blog
         <ul class="nav-list">
             
             
-            <li><a href="https:&#x2F;&#x2F;blog.gaxxx.me&#x2F;tags">Tags</a></li>
+            <li><a href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;tags">Tags</a></li>
             
             
             <li class="spacer">&ac;</li>
@@ -51,98 +51,111 @@ Docker简介 &middot; siwu&#x27;s blog
 <div class="post">
     
     
-<h2 class="post-title"><a href="https:&#x2F;&#x2F;blog.gaxxx.me&#x2F;dockerjian-jie&#x2F;">Docker简介</a></h2>
+<h2 class="post-title"><a href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;dockerjian-jie&#x2F;">Introduction to Docker</a></h2>
 <div class="post-header">
     <span class="post-date">August 20, 2014</span>
     
     <div class="post-tags">
         
-        <span class="post-tag">#<a href="https://blog.gaxxx.me/tags/cloud/">cloud</a></span>
+        <span class="post-tag">#<a href="https://gaxxx.github.io/tags/cloud/">cloud</a></span>
         
-        <span class="post-tag">#<a href="https://blog.gaxxx.me/tags/pass/">pass</a></span>
+        <span class="post-tag">#<a href="https://gaxxx.github.io/tags/pass/">pass</a></span>
         
     </div>
     
 </div>
 
+    
+
+  
+    
+    <a class="lang-toggle" href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;zh&#x2F;dockerjian-jie&#x2F;">
+      中文
+    </a>
+    
+  
+    
+  
+
+
     <div class="post-content">
-        <p><a href="http://docker.io">Docker</a>是一个提供PAAS平台服务的软件，它由golang编写，通过控制lxc服务，在一台宿主机上提供成百上千个lxc container的服务器，效率远高于SAAS。</p>
-<span id="continue-reading"></span><h2 id="an-zhuang-pei-zhi">安装配置</h2>
-<p>在archlinux下，直接运行 pacman</p>
+        <p><a rel="external" href="http://docker.io">Docker</a> is a PAAS platform service software written in Go. It controls LXC services to provide hundreds or thousands of LXC containers on a single host, far more efficient than SAAS.</p>
+<span id="continue-reading"></span><h2 id="installation">Installation</h2>
+<p>On Archlinux, install directly with pacman:</p>
 <pre><code>root# pacman -S docker
 root# systemctl start docker
 </code></pre>
-<p>在Ubuntu下，运行因为与其他应用重名，所以更名为docker.io</p>
+<p>On Ubuntu, it's renamed to docker.io due to naming conflicts:</p>
 <pre><code>root# apt-get install docker.io
 root# start docker.io
 </code></pre>
-<h2 id="chang-yong-ming-ling">常用命令</h2>
+<h2 id="common-commands">Common Commands</h2>
 <ul>
-<li>下载镜像,可以下载其他linux发行版的镜像，小到busybox，大到ubuntu</li>
+<li>Pull images - you can download various Linux distro images, from busybox to ubuntu:</li>
 </ul>
-<pre><code>&#x2F;&#x2F;下载Ubuntu14.04 minimal版本
-root# docker pull ubuntu:14.04  
+<pre><code>//Download Ubuntu 14.04 minimal version
+root# docker pull ubuntu:14.04
 </code></pre>
 <ul>
-<li>列出镜像,列出pull下来的镜像</li>
+<li>List images - show pulled images:</li>
 </ul>
 <pre><code>root# docker images
     REPOSITORY          TAG                   IMAGE ID            CREATED             VIRTUAL SIZE
     busybox             latest                a9eb17255234        10 weeks ago        2.433 MB
-    google&#x2F;debian       wheezy                89f520140765        11 weeks ago        118.1 MB
+    google/debian       wheezy                89f520140765        11 weeks ago        118.1 MB
     scratch             latest                511136ea3c5a        14 months ago       0 B
 </code></pre>
 <ul>
-<li>创建Container, 其实就是执行镜像中的程序,比如nginx、apache等服务，也能执行bash等交互脚本</li>
+<li>Create containers - run programs from images like nginx, apache, or interactive shells like bash:</li>
 </ul>
-<pre><code>&#x2F;&#x2F;执行交互式bash
-root# docker run -i -t busybox &#x2F;bin&#x2F;sh
+<pre><code>//Run interactive bash
+root# docker run -i -t busybox /bin/sh
 
-&#x2F;&#x2F;执行服务 -d (detach) -P (导出端口) -p (将Contianer的外部端口映射到内部端口)
+//Run a service: -d (detach) -P (export ports) -p (map container external port to internal port)
 root# docker run -t ubuntu:14.04 -d -P -p 322:22 &lt;service&gt;
 </code></pre>
 <ul>
-<li>显示Containers</li>
+<li>Show containers:</li>
 </ul>
-<pre><code>&#x2F;&#x2F;活动的Container
-root# docker ps 
-&#x2F;&#x2F;所有的Container,包括结束的
+<pre><code>//Active containers
+root# docker ps
+//All containers, including stopped ones
 root# docker ps -a
 </code></pre>
 <ul>
-<li>提交image,如果在Container中安装了软件，或者更新系统，可以将Container提交成Image，避免重复的工作</li>
+<li>Commit an image - if you've installed software or updated the system in a container, commit it as an image to avoid repetitive work:</li>
 </ul>
-<pre><code>&#x2F;&#x2F;提交Container,需要
+<pre><code>//Commit a container
 root# docker commit fdafdafda  streamer:1.0
 </code></pre>
-<h2 id="shi-yong-chang-jing">使用场景</h2>
+<h2 id="use-cases">Use Cases</h2>
 <ul>
-<li>版本迭代测试，每个版本放一个不动的Image，然后通过建立Container进行测试</li>
-<li>快速部署，创建一个image，然后运行在各种不同的linux版本上，只要支持docker</li>
-<li>PAAS服务，一台宿主机可以运行上千个小的Container,比如nginx静态文件服务</li>
+<li>Version iteration testing - put each version in a fixed image, then create containers for testing</li>
+<li>Rapid deployment - create an image, then run it on various Linux versions that support Docker</li>
+<li>PAAS services - a single host can run thousands of small containers, e.g. nginx static file servers</li>
 </ul>
 <h2 id="dockerfile">Dockerfile</h2>
-<p>通过Dockerfile可以简化docker命令，比如有一个测试程序目录，里面有streamer , node.conf,需要将这两个文件部署到docker,并通过9527端口进行服务.可以在该目录新建一个Dockfile文件，内容如下</p>
+<p>Dockerfiles simplify Docker commands. For example, with a test directory containing streamer and node.conf that need to be deployed to Docker with port 9527, create a Dockerfile:</p>
 <pre><code>#docker pull ubuntu:14.04
 FROM ubuntu:14.04
 
 # Set correct environment variables.
-ENV HOME &#x2F;root
-#增加文件
-ADD streamer &#x2F;root&#x2F;streamer 
-ADD node.conf &#x2F;root&#x2F;node.conf
-#需要导出的端口
+ENV HOME /root
+#Add files
+ADD streamer /root/streamer
+ADD node.conf /root/node.conf
+#Export port
 EXPOSE 9527
-#工作目录
-WORKDIR &#x2F;root&#x2F;
-#运行程序，没有这一行的话，可以运行ubuntu:14.04的所有程序，但是有这一行，只能执行streamer了
-ENTRYPOINT [&quot;.&#x2F;streamer&quot;]
+#Working directory
+WORKDIR /root/
+#Run program - without this line you can run all ubuntu:14.04 programs, but with it only streamer runs
+ENTRYPOINT [&quot;./streamer&quot;]
 </code></pre>
-<p>根据Dockerfile编译Image </p>
+<p>Build the image from the Dockerfile:</p>
 <pre><code>root# docker build -t streamer  .
 </code></pre>
-<p>运行Image</p>
-<pre><code>&#x2F;&#x2F;只能运行streamer
+<p>Run the image:</p>
+<pre><code>//Can only run streamer
 root# docker run -t streamer -P  -p 9527:9527
 </code></pre>
 
@@ -161,12 +174,12 @@ root# docker run -t streamer -P  -p 9527:9527
 </div>
 
     </div>
-    <script src="https://blog.gaxxx.me/js/slim.js"></script>
-    <script src="https://blog.gaxxx.me/js/elasticlunr.min.js"></script>
-    <script src="https://blog.gaxxx.me/search_index.zh.js"></script>
-    <script src="https://blog.gaxxx.me/js/lunr.stemmer.support.js"></script>
-    <script src="https://blog.gaxxx.me/js/lunr.zh.js"></script>
-    <script src="https://blog.gaxxx.me/js/search.js"></script>
+    <script src="https://gaxxx.github.io/js/slim.js"></script>
+    <script src="https://gaxxx.github.io/js/elasticlunr.min.js"></script>
+    <script src="https://gaxxx.github.io/search_index.en.js"></script>
+    <script src="https://gaxxx.github.io/js/lunr.stemmer.support.js"></script>
+    <script src="https://gaxxx.github.io/js/lunr.en.js"></script>
+    <script src="https://gaxxx.github.io/js/search.js"></script>
     
 </body>
 

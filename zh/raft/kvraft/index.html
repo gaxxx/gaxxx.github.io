@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <title>
+Kvraft 实现 &middot; siwu的博客
+</title>
+    <link rel="stylesheet" href="https://gaxxx.github.io/slim.css">
+    
+    
+</head>
+
+<body>
+    <div class="container">
+        
+<div class="header">
+    <h1 class="site-title"><a href="https:&#x2F;&#x2F;gaxxx.github.io">siwu的博客</a></h1>
+    <input id="search" class=".next" type="search" placeholder="Search" />
+    <p class="site-tagline"></p>
+    <div class="nav">
+        <a class="nav-btn" href="#">
+            <span class="ci ci-burger"></span>
+        </a>
+        <ul class="nav-list">
+            
+            
+            <li><a href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;tags">Tags</a></li>
+            
+            
+            <li class="spacer">&ac;</li>
+            
+            
+            <li><a href="https://www.linkedin.com/in/gaxxx">LinkedIn</a></li>
+            
+            <li><a href="https://github.com/gaxxx">Github</a></li>
+            
+            
+        </ul>
+    </div>
+    <div class="search-results">
+    <ul class="search-results__items"></ul>
+    </div>
+
+</div>
+
+        <div class="content">
+            <div class="posts">
+                
+<div class="post">
+    
+    
+<h2 class="post-title"><a href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;zh&#x2F;raft&#x2F;kvraft&#x2F;">Kvraft 实现</a></h2>
+<div class="post-header">
+    <span class="post-date">November 10, 2021</span>
+    
+    <div class="post-tags">
+        
+        <span class="post-tag">#<a href="https://gaxxx.github.io/tags/kvraft/">kvraft</a></span>
+        
+        <span class="post-tag">#<a href="https://gaxxx.github.io/tags/raft/">raft</a></span>
+        
+    </div>
+    
+</div>
+
+    
+
+  
+    
+  
+    
+    <a class="lang-toggle" href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;raft&#x2F;kvraft&#x2F;">
+      EN
+    </a>
+    
+  
+
+
+    <div class="post-content">
+        <p><a rel="external" href="http://nil.csail.mit.edu/6.824/2015/labs/lab-3.html">6.824 Lab 3: Paxos-based Key/Value Service (mit.edu)</a></p>
+<p><a rel="external" href="https://static.usenix.org/event/nsdi11/tech/full_papers/Bolosky.pdf">Bolosky.pdf (usenix.org)</a></p>
+<p>在kvraft这个系统里面，主要是处理 GET / PUT / APPEND的请求，要通过的测试，对于这些请求有如下的约束</p>
+<ul>
+<li>客户端是一个一个发送请求的</li>
+<li>对于客户端的 PUT / APPEND 可能会出现网络错误，无法到达服务端，也可能多次到达服务端，服务器应该能保证exactly once.</li>
+</ul>
+<h2 id="mu-biao">目标</h2>
+<ul>
+<li>完成所有的Test</li>
+</ul>
+<h2 id="wan-cheng-suo-you-de-test">完成所有的Test</h2>
+<ul>
+<li>第一步，完成TestBasic3A， 这个测试里面，每个client写不同的key，然后多次迭代，看看每次写入和读取的是否一致。</li>
+<li>在Snap的时候，把所有的状态就写进去就可以了。</li>
+</ul>
+<h3 id="xi-jie">细节</h3>
+<ul>
+<li>对于server端来说，如何存储key / value。</li>
+<li>对于Get请求，需要把它放到log里面处理吗</li>
+<li>如果把所有的请求都通过Start放入到Log里面， 什么时候apply，apply之后怎么返回。</li>
+</ul>
+<h3 id="wei-dai-ma">伪代码</h3>
+<pre><code data-lang="python">// 客户端代码
+
+while not_complete:
+	select_peer
+	rpc_call_cmd()
+  if errcode == ErrWrongLeader / ErrTimeout:
+		continue
+  return result
+
+// 服务器代码
+cmd = get_a_cmd()
+start(cmd)
+......
+wait cmd
+......
+	if is_timeout:
+		return ErrTimeout
+return cmd.result
+
+    
+</code></pre>
+<h3 id="xi-jie-chu-li">细节处理</h3>
+<ul>
+<li>所有的请求，都需要放到logs里面，然后在apply的时候处理. Apply的时候，因为是在单独的线程，如果其实 key / value 直接用map就行。</li>
+<li>对于Put 和 Append请求，我们需要为每个client配置一个incremental seq id, 然后在服务端处理的时候保证，对于同一个client id, seq id 是递增的，在这个case里面，应该是每次都是喜加一。</li>
+<li>对于已经执行过的PUT / APPEND 请求 (seq id比当前的小）， 可以直接返回成功。</li>
+<li>在服务器端维护一个 (log_idx, log_term) → (chan result) 的map， apply处理结束之后，给chan result发送消息，然后结束该rpc</li>
+<li>可以把 (client_id , seq_id) 的逻辑封装在内部，对外只暴露 OnMessage / OnSnapshot 的接口。</li>
+</ul>
+<h2 id="zong-jie">总结</h2>
+<p>kvraft里面主要增加了状态处理完成之后，给客户端应答的工作。如果客户端是一个长链接，可以异步的返回处理结果，这个就跟zk比较类似了。</p>
+<p><a href="/raft/">Back</a></p>
+
+    </div>
+    
+</div>
+
+            </div>
+            
+        </div>
+        
+<div class="footer">
+    
+    <p>Powered by <a href="https://getzola.org">Zola</a></p>
+    
+</div>
+
+    </div>
+    <script src="https://gaxxx.github.io/js/slim.js"></script>
+    <script src="https://gaxxx.github.io/js/elasticlunr.min.js"></script>
+    <script src="https://gaxxx.github.io/search_index.zh.js"></script>
+    <script src="https://gaxxx.github.io/js/lunr.stemmer.support.js"></script>
+    <script src="https://gaxxx.github.io/js/lunr.zh.js"></script>
+    <script src="https://gaxxx.github.io/js/search.js"></script>
+    
+</body>
+
+</html>

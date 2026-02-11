@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <title>
+用rust写crud &middot; siwu的博客
+</title>
+    <link rel="stylesheet" href="https://gaxxx.github.io/slim.css">
+    
+    
+</head>
+
+<body>
+    <div class="container">
+        
+<div class="header">
+    <h1 class="site-title"><a href="https:&#x2F;&#x2F;gaxxx.github.io">siwu的博客</a></h1>
+    <input id="search" class=".next" type="search" placeholder="Search" />
+    <p class="site-tagline"></p>
+    <div class="nav">
+        <a class="nav-btn" href="#">
+            <span class="ci ci-burger"></span>
+        </a>
+        <ul class="nav-list">
+            
+            
+            <li><a href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;tags">Tags</a></li>
+            
+            
+            <li class="spacer">&ac;</li>
+            
+            
+            <li><a href="https://www.linkedin.com/in/gaxxx">LinkedIn</a></li>
+            
+            <li><a href="https://github.com/gaxxx">Github</a></li>
+            
+            
+        </ul>
+    </div>
+    <div class="search-results">
+    <ul class="search-results__items"></ul>
+    </div>
+
+</div>
+
+        <div class="content">
+            <div class="posts">
+                
+<div class="post">
+    
+    
+<h2 class="post-title"><a href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;zh&#x2F;how-to-build-rust-service-using-actix-and-postgresql&#x2F;">用rust写crud</a></h2>
+<div class="post-header">
+    <span class="post-date">July 09, 2020</span>
+    
+    <div class="post-tags">
+        
+        <span class="post-tag">#<a href="https://gaxxx.github.io/tags/rust/">rust</a></span>
+        
+        <span class="post-tag">#<a href="https://gaxxx.github.io/tags/crud/">crud</a></span>
+        
+    </div>
+    
+</div>
+
+    
+
+  
+    
+  
+    
+    <a class="lang-toggle" href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;how-to-build-rust-service-using-actix-and-postgresql&#x2F;">
+      EN
+    </a>
+    
+  
+
+
+    <div class="post-content">
+        <p>这是rust系列的第一篇</p>
+<p>虽然rust以其高性能著称，但是写简单crud的时候，我们还是喜欢用spring boot或者golang，
+但是要用rust写，也不是不可以</p>
+<p>具体代码在:
+https://github.com/gaxxx/rust-crud</p>
+<span id="continue-reading"></span><h2 id="yi-lai">依赖</h2>
+<ul>
+<li>postgresql</li>
+<li>rust</li>
+<li>vscode</li>
+</ul>
+<h2 id="chu-shi-hua-git-checkout-step0">初始化 (git checkout step0)</h2>
+<ul>
+<li>创建初始化项目</li>
+</ul>
+<ol>
+<li>cargo new hero-api</li>
+<li>在cargo.toml添加dependencies</li>
+</ol>
+<pre><code>actix-web=&quot;2.0.0&quot;
+actix-rt = &quot;1.0&quot;
+</code></pre>
+<ol start="3">
+<li>试试初始化文件</li>
+</ol>
+<pre><code>use actix_web::{web, App, Responder, HttpServer, get};
+
+#[get(&quot;/{username}&quot;)]
+async fn hello(user : web::Path&lt;String&gt; ) -&gt; impl Responder {
+    format!(&quot;Hello world {}&quot;, user.into_inner())
+}
+
+
+#[actix_rt::main]
+async fn main() -&gt; std::io::Result&lt;()&gt; {
+    HttpServer::new(move || {
+        App::new()
+            .service(
+                web::scope(&quot;/hello&quot;)
+                    .service(hello)
+            )
+    })
+        .bind(&quot;127.0.0.1:8088&quot;)?
+        .run()
+        .await
+}
+</code></pre>
+<ol start="4">
+<li>创建一个api.http,添加测试, 安装rest client插件</li>
+</ol>
+<pre><code>GET http://127.0.0.1:8088/hello/test
+</code></pre>
+<h2 id="zeng-jia-jsonzhi-chi-git-checkout-json">增加json支持 (git checkout json)</h2>
+<ol>
+<li>在cargo.toml中添加serde</li>
+<li>定义一个结构,通过derive可以序列化和反序列化</li>
+</ol>
+<pre><code>#[derive(Deserialize, Debug, Clone)]
+struct Info {
+    username : String
+}
+
+#[get(&quot;/{username}&quot;)]
+async fn hello(user : web::Path&lt;Info&gt; ) -&gt; impl Responder {
+    format!(&quot;Hello world {}&quot;, user.username)
+}
+</code></pre>
+<h2 id="zeng-jia-shu-ju-ku-zhi-chi-git-checkout-db">增加数据库支持 (git checkout db)</h2>
+<ol>
+<li>添加diesel,在Cargo.toml里添加</li>
+</ol>
+<pre><code>diesel = { version = &quot;1.0.0&quot;, features = [&quot;postgres&quot;] }
+dotenv = &quot;0.9.0&quot;
+r2d2-diesel = &quot;1.0.0&quot;
+</code></pre>
+<ol start="2">
+<li>安装diesel客户端</li>
+</ol>
+<pre><code>cargo install diesel_cli --no-default-features --features postgres
+</code></pre>
+<ol start="3">
+<li>配置postgresql</li>
+</ol>
+<pre><code># 创建数据库
+sudo -u postgres psql
+ALTER USER postgres PASSWORD &#39;password&#39;;
+create database heroes;
+
+# 将连接串写入.env文件
+echo DATABASE_URL=postgres://postgres:password@127.0.0.1/heroes &gt; .env
+
+
+# 生成数据库表
+disel setup 
+// generage module tables
+diesel migration generate heroes
+
+
+# 如果失败需要在pg_hba.conf里面添加
+host    all             all             127.0.0.1/32            md5
+
+# 配置对应的数据库表，具体参考rust-crud的配置
+# 生成diesel schema
+diesel migration run
+
+# 文件内容如下，diesel为这个结构生成了很多宏
+
+table! {
+    users (id) {
+        id -&gt; Int4,
+        name -&gt; Varchar,
+        identity -&gt; Varchar,
+        hometown -&gt; Varchar,
+        age -&gt; Int4,
+    }
+}
+
+</code></pre>
+<ol start="5">
+<li>增加DB</li>
+</ol>
+<pre><code>
+
+# 从request拿到db
+impl FromRequest for DB {
+    type Error = ();
+    type Future = LocalBoxFuture&lt;&#39;static, Result&lt;Self, Self::Error&gt;&gt;;
+    type Config = DB;
+
+    fn from_request(req: &amp;HttpRequest, _: &amp;mut Payload&lt;PayloadStream&gt;) -&gt; Self::Future {
+        let config= req.app_data::&lt;Self::Config&gt;().unwrap();
+        futures::future::ok(config.clone()).boxed_local()
+    }
+}
+
+# 增加连接池
+pub type Pool = r2d2::Pool&lt;ConnectionManager&lt;PgConnection&gt;&gt;;
+#[derive(Clone)]
+pub struct DB(pub Pool);
+</code></pre>
+<ol start="6">
+<li>在路由层添加db</li>
+</ol>
+<pre><code># App对象加上db
+App::new()
+            .app_data(db::DB::default())
+
+# 具体handler里面因为实现了FromRequest,可以直接拿到db
+#[post(&quot;/&quot;)]
+async fn create(hero: web::Json&lt;hero::HeroInput&gt;, db: db::DB) -&gt; impl Responder {
+    let created : hero::Hero = diesel::insert_into(schema::users::table)
+        .values(hero.into_inner())
+        .get_result(db.get().deref()).expect(&quot;Error creagint&quot;);
+    println!(&quot;output is {:?}&quot;, created);
+    web::Json(created)
+}
+</code></pre>
+<ol start="7">
+<li>diesel对CRUD都提供了相应的支持</li>
+</ol>
+<pre><code>// create 
+diesel::insert_into(schema::users::table)
+        .values(hero.into_inner())
+// read
+users.filter(id.eq(update_id.into_inner()))
+        .first::&lt;hero::Hero&gt;(&amp;*db.get());
+// update
+diesel::update(users.filter(id.eq(update_id.into_inner())))
+        .set(hero.into_inner())
+// delete
+diesel::delete(users.filter(id.eq(update_id.into_inner())))
+
+
+//list
+users.load::&lt;hero::Hero&gt;(&amp;*db.get()).unwrap();
+</code></pre>
+<h2 id="ti-gong-fen-ye-zhi-chi-git-checkout-master">提供分页支持 (git checkout master)</h2>
+<pre><code># 定义一个分页的trait
+pub trait Paginate: Sized {
+    fn paginate(self, start: i64) -&gt; Paginated&lt;Self&gt;;
+}
+
+# 扩展查询结果，从返回一行数据，到返回一个（数据， 总数量)的tuple
+impl&lt;T: Query&gt; Query for Paginated&lt;T&gt; {
+    type SqlType = (T::SqlType, BigInt);
+}
+
+# 实现query
+
+impl&lt;T&gt; QueryFragment&lt;Pg&gt; for Paginated&lt;T&gt;
+    where
+        T: QueryFragment&lt;Pg&gt;,
+{
+    fn walk_ast(&amp;self, mut out: AstPass&lt;Pg&gt;) -&gt; QueryResult&lt;()&gt; {
+        out.push_sql(&quot;SELECT *, COUNT(*) OVER () FROM (&quot;);
+        self.query.walk_ast(out.reborrow())?;
+        out.push_sql(&quot;) t LIMIT &quot;);
+        out.push_bind_param::&lt;BigInt, _&gt;(&amp;self.count)?;
+        out.push_sql(&quot; OFFSET &quot;);
+        let offset = self.start;
+        out.push_bind_param::&lt;BigInt, _&gt;(&amp;offset)?;
+        Ok(())
+    }
+}
+
+# 在函数处理里面这样使用
+#[get(&quot;/&quot;)]
+async fn gets(req : web::Query&lt;PageRequest&gt; ,db : db::DB) -&gt; impl Responder {
+    use schema::users::dsl::*;
+    use crate::db::pagination::Paginate;
+    let query = users.order(id.asc());
+    let query = query.paginate(req.start.unwrap_or(0).into());
+    let all_users : Vec&lt;_&gt; = query.load::&lt;(hero::Hero, i64)&gt;(&amp;*db.get()).unwrap();
+    web::Json(all_users.iter().map(|v| v.0.clone()).collect::&lt;Vec&lt;_&gt;&gt;())
+}
+</code></pre>
+<h2 id="gan-xiang">感想</h2>
+<ol>
+<li>diesel跟其他的orm不太一样，底层通过宏来实现的，对于各种query也比较完备</li>
+<li>性能没啥说的，就是干</li>
+<li>想起了刚开始撸golang的时候，那时候beego也刚出来,比特币还特别便宜...</li>
+</ol>
+<h2 id="can-kao">参考</h2>
+<p>https://medium.com/sean3z/building-a-restful-crud-api-with-rust-1867308352d8</p>
+
+    </div>
+    
+</div>
+
+            </div>
+            
+        </div>
+        
+<div class="footer">
+    
+    <p>Powered by <a href="https://getzola.org">Zola</a></p>
+    
+</div>
+
+    </div>
+    <script src="https://gaxxx.github.io/js/slim.js"></script>
+    <script src="https://gaxxx.github.io/js/elasticlunr.min.js"></script>
+    <script src="https://gaxxx.github.io/search_index.zh.js"></script>
+    <script src="https://gaxxx.github.io/js/lunr.stemmer.support.js"></script>
+    <script src="https://gaxxx.github.io/js/lunr.zh.js"></script>
+    <script src="https://gaxxx.github.io/js/search.js"></script>
+    
+</body>
+
+</html>

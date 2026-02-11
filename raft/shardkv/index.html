@@ -5,9 +5,9 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
     <title>
-ShardKv 实现 &middot; siwu&#x27;s blog
+ShardKV Implementation &middot; siwu&#x27;s blog
 </title>
-    <link rel="stylesheet" href="https://blog.gaxxx.me/slim.css">
+    <link rel="stylesheet" href="https://gaxxx.github.io/slim.css">
     
     
 </head>
@@ -16,7 +16,7 @@ ShardKv 实现 &middot; siwu&#x27;s blog
     <div class="container">
         
 <div class="header">
-    <h1 class="site-title"><a href="https:&#x2F;&#x2F;blog.gaxxx.me">siwu&#x27;s blog</a></h1>
+    <h1 class="site-title"><a href="https:&#x2F;&#x2F;gaxxx.github.io">siwu&#x27;s blog</a></h1>
     <input id="search" class=".next" type="search" placeholder="Search" />
     <p class="site-tagline"></p>
     <div class="nav">
@@ -26,7 +26,7 @@ ShardKv 实现 &middot; siwu&#x27;s blog
         <ul class="nav-list">
             
             
-            <li><a href="https:&#x2F;&#x2F;blog.gaxxx.me&#x2F;tags">Tags</a></li>
+            <li><a href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;tags">Tags</a></li>
             
             
             <li class="spacer">&ac;</li>
@@ -51,79 +51,92 @@ ShardKv 实现 &middot; siwu&#x27;s blog
 <div class="post">
     
     
-<h2 class="post-title"><a href="https:&#x2F;&#x2F;blog.gaxxx.me&#x2F;raft&#x2F;shardkv&#x2F;">ShardKv 实现</a></h2>
+<h2 class="post-title"><a href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;raft&#x2F;shardkv&#x2F;">ShardKV Implementation</a></h2>
 <div class="post-header">
     <span class="post-date">November 10, 2021</span>
     
     <div class="post-tags">
         
-        <span class="post-tag">#<a href="https://blog.gaxxx.me/tags/raft/">raft</a></span>
+        <span class="post-tag">#<a href="https://gaxxx.github.io/tags/raft/">raft</a></span>
         
-        <span class="post-tag">#<a href="https://blog.gaxxx.me/tags/shardkv/">shardkv</a></span>
+        <span class="post-tag">#<a href="https://gaxxx.github.io/tags/shardkv/">shardkv</a></span>
         
     </div>
     
 </div>
 
+    
+
+  
+    
+    <a class="lang-toggle" href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;zh&#x2F;raft&#x2F;shardkv&#x2F;">
+      中文
+    </a>
+    
+  
+    
+  
+
+
     <div class="post-content">
-        <p><a href="https://pdos.csail.mit.edu/6.824/labs/lab-shard.html">6.824 Lab 4: Sharded Key/Value Service (mit.edu)</a></p>
-<p>这个测试，主要是在kvraft的基础下，扩展了multi raft group. 它分成两个部分，一个是 mutli raft group control, 另外一个部分是 shardkv.</p>
-<h2 id="mu-biao">目标</h2>
+        <p><a rel="external" href="https://pdos.csail.mit.edu/6.824/labs/lab-shard.html">6.824 Lab 4: Sharded Key/Value Service (mit.edu)</a></p>
+<p>This test mainly extends kvraft with multi raft group support. It has two parts: multi raft group control and shardkv.</p>
+<h2 id="goals">Goals</h2>
 <ul>
 <li>shardctl</li>
 <li>shardkv</li>
 </ul>
 <h3 id="shardctl">Shardctl</h3>
 <ul>
-<li>这个的实现与kvraft类似，但是需要保证每次Config里面，所有shard之间的group如何balance。</li>
+<li>The implementation is similar to kvraft, but needs to ensure proper group balancing across all shards in each Config.</li>
 </ul>
-<h3 id="xi-jie">细节</h3>
+<h3 id="details">Details</h3>
 <ul>
-<li>group加入，或者离开之后， 所有Shard的group怎么分配，保证数据的迁移量最小</li>
+<li>After groups join or leave, how to allocate shards across groups while minimizing data migration</li>
 </ul>
-<h3 id="wei-dai-ma">伪代码</h3>
-<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python">
-&#x2F;&#x2F; 服务器代码， 在OnMessage部分进行处理
+<h3 id="pseudocode">Pseudocode</h3>
+<pre><code data-lang="python">
+// Server code, handle in OnMessage section
 
 leave_or_join_a_group()
 rebalance()
-    
+
 </code></pre>
-<h3 id="xi-jie-chu-li">细节处理</h3>
+<h3 id="detail-handling">Detail Handling</h3>
 <ul>
-<li>在测试里面，我们有10个shard，3个group，所以可以搞简单一点
+<li>In the tests, we have 10 shards and 3 groups, so we can keep it simple:
 <ul>
-<li>采用consistency hash, 例如 hash_value = 3 * group_id % 10</li>
-<li>或者直接round robin</li>
+<li>Use consistent hashing, e.g., hash_value = 3 * group_id % 10</li>
+<li>Or just round robin</li>
 </ul>
 </li>
 </ul>
-<h3 id="shardkv">ShardKv</h3>
-<p>在multi raft group中，实现一个kv store的功能， 客户端会取最新的Config，然后找到对应的 raft group获取或者写入数据。但是如果这个时候，新加入一个group，如何来进行数据的balance。</p>
-<h3 id="xi-jie-1">细节</h3>
+<h3 id="shardkv">ShardKV</h3>
+<p>In multi raft groups, implement a KV store. Clients fetch the latest Config, then find the corresponding raft group to read or write data. But when a new group joins, how to balance the data.</p>
+<h3 id="details-1">Details</h3>
 <ul>
-<li>客户端的Config与它访问的group拿到的Config不一致怎么处理？</li>
-<li>每个raft group怎么整体升级到最新的Config，如何与不同的group交换数据，是把数据推出来，还是拉过来？谁来负责这个事情</li>
-<li>(client_id, seq_id) 的数据怎么同步</li>
+<li>What if the client's Config doesn't match the group's Config?</li>
+<li>How does each raft group upgrade to the latest Config as a whole? How to exchange data with different groups - push or pull? Who's responsible?</li>
+<li>How to sync (client_id, seq_id) data</li>
 </ul>
-<h3 id="wei-dai-ma-1">伪代码</h3>
-<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python">&#x2F;&#x2F; 只有leader才会去做数据的update
+<h3 id="pseudocode-1">Pseudocode</h3>
+<pre><code data-lang="python">// Only the leader does data updates
 while is_leader:
 	get_next_cfg
-	client_self.prepare_upgrade &#x2F;&#x2F; 所有的self group都知道要升级了
-	client_others.push_data  &#x2F;&#x2F; 所有的其他的group需要的数据都推出去了
-  client_self.commit_upgrade  &#x2F;&#x2F; 所有的self group都可以升级了
+	client_self.prepare_upgrade // All self group members know about the upgrade
+	client_others.push_data  // All data needed by other groups is pushed out
+  client_self.commit_upgrade  // All self group members can upgrade now
 </code></pre>
-<h3 id="xi-jie-shi-xian">细节实现</h3>
+<h3 id="detail-implementation">Detail Implementation</h3>
 <ul>
-<li>非常不建议在OnMessage里面去做跨group之间的通信，否则的话，跨group的message满天飞。。。</li>
-<li>把Client的部分逻辑，拿到Server端，kvraft里面， client的实现是，做一个操作，并保证它完成，这个非常适合升级Config。</li>
-<li>在升级的过程中，我们可以保存两份数据， 旧的Config和data，新的Config和data。 这样在升级的过程中， 也可以提供服务。 比如 Config 升级 8→9,  这个时候有个Group的部分shard已经可以提供 Config-9的服务了，但是其他shard的数据不全。这个时候， client的请求也应该能正确的处理， 旧数据可以在升级后清理掉。</li>
-<li>(client_id, seq_id) 的合并，对于每个client，可以只保留最大的 seq_id</li>
-<li>在ConfigUpdate的这些请求，我们可以为他们配置特殊的client_id 和 seq_id,来保证幂等，比如对于8-9的数据，（client_id, seq_id) 可以写成 (group_100_to_group_101_cfg_8, 9)</li>
+<li>Strongly discourage cross-group communication in OnMessage, otherwise cross-group messages fly everywhere...</li>
+<li>Move some client logic to the server side. In kvraft, the client's logic is: perform an operation and ensure it completes. This is perfect for Config upgrades.</li>
+<li>During upgrades, maintain two copies of data: old Config+data and new Config+data. This allows service during upgrades. For example, upgrading Config 8→9, some shards in a group can already serve Config-9, while others have incomplete data. Client requests should still be handled correctly. Old data can be cleaned up after upgrade.</li>
+<li>For (client_id, seq_id) merging, keep only the largest seq_id for each client</li>
+<li>For ConfigUpdate requests, configure special client_id and seq_id to ensure idempotency. For example, for 8→9 data, (client_id, seq_id) can be (group_100_to_group_101_cfg_8, 9)</li>
 </ul>
-<h2 id="zong-jie">总结</h2>
-<p>这组测试最难的就是如何保证跨group的数据进行同步。 而且在同步这些数据的过程中，我们需要保证 update数据也是幂等的，所以把client的逻辑拿过来是一件非常自然的事情 （虽然我第一次卡在这一步直接跪了）</p>
+<h2 id="summary">Summary</h2>
+<p>The hardest part of this test set is ensuring cross-group data synchronization. During sync, update data must also be idempotent, so bringing client logic over is very natural (though I got stuck on this step and failed on my first attempt).</p>
 <p><a href="/raft/">Back</a></p>
 
     </div>
@@ -141,12 +154,12 @@ while is_leader:
 </div>
 
     </div>
-    <script src="https://blog.gaxxx.me/js/slim.js"></script>
-    <script src="https://blog.gaxxx.me/js/elasticlunr.min.js"></script>
-    <script src="https://blog.gaxxx.me/search_index.zh.js"></script>
-    <script src="https://blog.gaxxx.me/js/lunr.stemmer.support.js"></script>
-    <script src="https://blog.gaxxx.me/js/lunr.zh.js"></script>
-    <script src="https://blog.gaxxx.me/js/search.js"></script>
+    <script src="https://gaxxx.github.io/js/slim.js"></script>
+    <script src="https://gaxxx.github.io/js/elasticlunr.min.js"></script>
+    <script src="https://gaxxx.github.io/search_index.en.js"></script>
+    <script src="https://gaxxx.github.io/js/lunr.stemmer.support.js"></script>
+    <script src="https://gaxxx.github.io/js/lunr.en.js"></script>
+    <script src="https://gaxxx.github.io/js/search.js"></script>
     
 </body>
 

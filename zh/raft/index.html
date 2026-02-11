@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <title>
+Raft 实现笔记 (6.824 2021 Spring) &middot; siwu的博客
+</title>
+    <link rel="stylesheet" href="https://gaxxx.github.io/slim.css">
+    
+    
+</head>
+
+<body>
+    <div class="container">
+        
+<div class="header">
+    <h1 class="site-title"><a href="https:&#x2F;&#x2F;gaxxx.github.io">siwu的博客</a></h1>
+    <input id="search" class=".next" type="search" placeholder="Search" />
+    <p class="site-tagline"></p>
+    <div class="nav">
+        <a class="nav-btn" href="#">
+            <span class="ci ci-burger"></span>
+        </a>
+        <ul class="nav-list">
+            
+            
+            <li><a href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;tags">Tags</a></li>
+            
+            
+            <li class="spacer">&ac;</li>
+            
+            
+            <li><a href="https://www.linkedin.com/in/gaxxx">LinkedIn</a></li>
+            
+            <li><a href="https://github.com/gaxxx">Github</a></li>
+            
+            
+        </ul>
+    </div>
+    <div class="search-results">
+    <ul class="search-results__items"></ul>
+    </div>
+
+</div>
+
+        <div class="content">
+            <div class="posts">
+                
+<div class="post">
+    
+    
+<h2 class="post-title"><a href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;zh&#x2F;raft&#x2F;">Raft 实现笔记 (6.824 2021 Spring)</a></h2>
+<div class="post-header">
+    <span class="post-date">November 05, 2021</span>
+    
+    <div class="post-tags">
+        
+        <span class="post-tag">#<a href="https://gaxxx.github.io/tags/golang/">golang</a></span>
+        
+        <span class="post-tag">#<a href="https://gaxxx.github.io/tags/raft/">raft</a></span>
+        
+    </div>
+    
+</div>
+
+    
+
+  
+    
+    <a class="lang-toggle" href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;raft&#x2F;">
+      EN
+    </a>
+    
+  
+    
+  
+
+
+    <div class="post-content">
+        <p>完成了年初的flag
+Implement raft &amp; raft based distributed kv store.</p>
+<span id="continue-reading"></span><h2 id="bei-jing">背景</h2>
+<p>放个图证明自己，爱过.</p>
+
+
+<table>
+<tr>
+   
+  <th>raft</th>
+   
+  <th>kvraft</th>
+   
+  <th>shardkv</th>
+  
+</tr>
+<tr>
+  
+  
+  
+  
+  <td><a href="https://gaxxx.github.io/raft/raft_0.png" target="_blank"><img src="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;processed_images&#x2F;raft_0.22c3188687b451a9.png" alt="https://gaxxx.github.io/raft/raft_0.png" /></a></td>
+  
+  
+  
+  
+  <td><a href="https://gaxxx.github.io/raft/raft_1.png" target="_blank"><img src="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;processed_images&#x2F;raft_1.306429b1ab31c06f.png" alt="https://gaxxx.github.io/raft/raft_1.png" /></a></td>
+  
+  
+  
+  
+  <td><a href="https://gaxxx.github.io/raft/raft_2.png" target="_blank"><img src="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;processed_images&#x2F;raft_2.257e2ab1726ef4b0.png" alt="https://gaxxx.github.io/raft/raft_2.png" /></a></td>
+  
+</tr>
+</table>
+<h2 id="mu-biao">目标</h2>
+<p>学习<a rel="external" href="https://pdos.csail.mit.edu/6.824/general.html">6.824课程</a>，以及相关的分布式知识，并且基于lab环境</p>
+<ul>
+<li>完成raft的分布式日志实现</li>
+<li>完成基于raft log的分布式kvstore</li>
+</ul>
+<p>在踩坑的过程中，我碰到了这些问题或者有一些思考</p>
+<ul>
+<li>跑一次test的时候，没啥问题，但是跑十次可能错一两次</li>
+<li>碰到死锁怎么办，怎么处理不同的模块之间的锁</li>
+<li>leader在正常工作时，有一个乱入的leader，发送了一个高term请求，如何快速recover</li>
+<li>用Raft怎么做zookeep或者kafka</li>
+<li>如何进行performance tuning</li>
+<li>如何scale</li>
+</ul>
+<p>在实现过程中，我都有了一些看法，可以直接跳到最后部分。。。</p>
+<p><a href="https://gaxxx.github.io/raft/prepare/">准备</a></p>
+<p>以下是每个test的实现，我会简单描叙</p>
+<ul>
+<li>要做的事情</li>
+<li>技术细节</li>
+<li>伪代码</li>
+<li>技术细节的实现</li>
+</ul>
+<h2 id="shi-xian">实现</h2>
+<p><a href="https://gaxxx.github.io/raft/raft/">raft</a></p>
+<p><a href="https://gaxxx.github.io/raft/kvraft/">kvraft</a></p>
+<p><a href="https://gaxxx.github.io/raft/shardkv/">shardkv</a></p>
+<h2 id="si-kao">思考</h2>
+<ul>
+<li>跑一次test的时候，没啥问题，但是跑十次可能错一两次
+<ul>
+<li><a href="https://gaxxx.github.io/raft/raft/#when-to-save">raft 细节处理</a></li>
+<li>出现偶然failure的情况一般都是persist的问题。 Raft paper里面对于commit的条件是，when the log replicate.  在处理heartbeat时，如果不存盘就返回，并且返回leader这个数据当前最新的log位置的话， leader可能就直接apply了。 这个时候如果发生crash， 就会出现问题。</li>
+<li>但是如果每次heartbeat有新数据需要存盘的话，可能会比较慢，尤其是对于arm主机来说。而且这是一个一次同时挂两台机器，才会出现的问题，所以实际操作中，有些实现是写到内存就返回的。</li>
+<li>还有一种方式是，异步存数据，但是下一个heartbeat再确认数据replicated, 这样正确性是OK的，但是过不了测试，因为慢。当然，如果实际系统里面，客户端对于latency 不敏感的话，是可以work的。</li>
+</ul>
+</li>
+<li>碰到死锁怎么办，怎么处理不同的模块之间锁
+<ul>
+<li><a href="https://gaxxx.github.io/raft/raft/#avoid-lock">外部交互</a></li>
+<li>每个模块别把锁暴露给别人就可以了，理论上说加锁的scope是这样的 shardkv &gt; kvraft &gt; raft</li>
+</ul>
+</li>
+<li>leader在正常工作时，有一个乱入的leader，发送了一个高term请求，如何快速recover
+<ul>
+<li><a href="https://gaxxx.github.io/raft/raft/#raft-detail">快速恢复</a></li>
+</ul>
+</li>
+<li>用Raft怎么实现zookeep或者kafka类似的功能
+<ul>
+<li>Raft的logid与zk的lastId很相似，写入时，我们可以与leader建立一个连接， 然后执行完之后拿到一个logid,记为write_id. 在Get的时候，我们可以与follower建立一个长连接，只要所有的Get请求的idx id比 write_id大，那不就妥了吗。。。</li>
+<li>Kafka 集群，比如3个服务器，一台crash之后，其他server会起来take over， 3台服务器可以挂两个。 kafka的实现是因为它还挂了一个zk, raft也可以在前面挂一个shartctler对peer进行测试，如果3台挂了两台，shardctler可以增加一个新的group, 这个group里面只有一个活着的peer</li>
+</ul>
+</li>
+<li>如何做performance tuning
+<ul>
+<li>
+<p>对于一个数据来说， commit的时间是</p>
+<ul>
+<li>client —request—&gt; leader</li>
+<li>leader → persist</li>
+<li>leader —heartbeat —&gt; peer</li>
+<li>peer → persist</li>
+<li>peer —hearbeat reply → server</li>
+</ul>
+<p>如果为了提升性能， 可以</p>
+<ol>
+<li>persist用ssd或者用memory</li>
+<li>persist用异步来做，这样client latency会增加</li>
+<li>减少网络latency, 减少peer的数量，peer之后可以接另外的raft group</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>如何做scale
+<ul>
+<li>如果写请求过多，可以做multi raft group</li>
+<li>Get的请求可以放在follower里面，如果对于实时性要求不高的话</li>
+<li>可以使用多级的raft group，不同级别的raft group可以用不同的策略处理 OnMessage , 也可用不同的粒度来 Save Snapshot</li>
+</ul>
+</li>
+</ul>
+<h2 id="can-kao-ju-shuo-tie-de-yue-duo-yue-zhuan-ye">参考 (据说贴得越多越专业）</h2>
+<ul>
+<li><a rel="external" href="https://pdos.csail.mit.edu/6.824/index.html">6.824 Home Page: Spring 2021 (mit.edu)</a></li>
+<li><a rel="external" href="https://pdos.csail.mit.edu/6.824/papers/gfs.pdf">https://pdos.csail.mit.edu/6.824/papers/gfs.pdf</a></li>
+<li><a rel="external" href="https://pdos.csail.mit.edu/6.824/papers/vm-ft.pdf">https://pdos.csail.mit.edu/6.824/papers/vm-ft.pdf</a></li>
+<li><a rel="external" href="https://pdos.csail.mit.edu/6.824/papers/gfs.pdf">https://pdos.csail.mit.edu/6.824/papers/gfs.pdf</a></li>
+<li><a rel="external" href="https://pdos.csail.mit.edu/6.824/papers/farm-2015.pdf">farm-2015.pdf (mit.edu)</a></li>
+<li><a rel="external" href="https://pdos.csail.mit.edu/6.824/papers/mdcc.pdf">mdcc.pdf (mit.edu)</a></li>
+</ul>
+
+    </div>
+    
+</div>
+
+            </div>
+            
+        </div>
+        
+<div class="footer">
+    
+    <p>Powered by <a href="https://getzola.org">Zola</a></p>
+    
+</div>
+
+    </div>
+    <script src="https://gaxxx.github.io/js/slim.js"></script>
+    <script src="https://gaxxx.github.io/js/elasticlunr.min.js"></script>
+    <script src="https://gaxxx.github.io/search_index.zh.js"></script>
+    <script src="https://gaxxx.github.io/js/lunr.stemmer.support.js"></script>
+    <script src="https://gaxxx.github.io/js/lunr.zh.js"></script>
+    <script src="https://gaxxx.github.io/js/search.js"></script>
+    
+</body>
+
+</html>

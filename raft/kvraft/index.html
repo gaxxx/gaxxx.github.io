@@ -5,9 +5,9 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
     <title>
-Kvraft 实现 &middot; siwu&#x27;s blog
+KVRaft Implementation &middot; siwu&#x27;s blog
 </title>
-    <link rel="stylesheet" href="https://blog.gaxxx.me/slim.css">
+    <link rel="stylesheet" href="https://gaxxx.github.io/slim.css">
     
     
 </head>
@@ -16,7 +16,7 @@ Kvraft 实现 &middot; siwu&#x27;s blog
     <div class="container">
         
 <div class="header">
-    <h1 class="site-title"><a href="https:&#x2F;&#x2F;blog.gaxxx.me">siwu&#x27;s blog</a></h1>
+    <h1 class="site-title"><a href="https:&#x2F;&#x2F;gaxxx.github.io">siwu&#x27;s blog</a></h1>
     <input id="search" class=".next" type="search" placeholder="Search" />
     <p class="site-tagline"></p>
     <div class="nav">
@@ -26,7 +26,7 @@ Kvraft 实现 &middot; siwu&#x27;s blog
         <ul class="nav-list">
             
             
-            <li><a href="https:&#x2F;&#x2F;blog.gaxxx.me&#x2F;tags">Tags</a></li>
+            <li><a href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;tags">Tags</a></li>
             
             
             <li class="spacer">&ac;</li>
@@ -51,54 +51,67 @@ Kvraft 实现 &middot; siwu&#x27;s blog
 <div class="post">
     
     
-<h2 class="post-title"><a href="https:&#x2F;&#x2F;blog.gaxxx.me&#x2F;raft&#x2F;kvraft&#x2F;">Kvraft 实现</a></h2>
+<h2 class="post-title"><a href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;raft&#x2F;kvraft&#x2F;">KVRaft Implementation</a></h2>
 <div class="post-header">
     <span class="post-date">November 10, 2021</span>
     
     <div class="post-tags">
         
-        <span class="post-tag">#<a href="https://blog.gaxxx.me/tags/kvraft/">kvraft</a></span>
+        <span class="post-tag">#<a href="https://gaxxx.github.io/tags/kvraft/">kvraft</a></span>
         
-        <span class="post-tag">#<a href="https://blog.gaxxx.me/tags/raft/">raft</a></span>
+        <span class="post-tag">#<a href="https://gaxxx.github.io/tags/raft/">raft</a></span>
         
     </div>
     
 </div>
 
+    
+
+  
+    
+    <a class="lang-toggle" href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;zh&#x2F;raft&#x2F;kvraft&#x2F;">
+      中文
+    </a>
+    
+  
+    
+  
+
+
     <div class="post-content">
-        <p><a href="http://nil.csail.mit.edu/6.824/2015/labs/lab-3.html">6.824 Lab 3: Paxos-based Key/Value Service (mit.edu)</a></p>
-<p><a href="https://static.usenix.org/event/nsdi11/tech/full_papers/Bolosky.pdf">Bolosky.pdf (usenix.org)</a></p>
-<p>在kvraft这个系统里面，主要是处理 GET / PUT / APPEND的请求，要通过的测试，对于这些请求有如下的约束</p>
+        <p><a rel="external" href="http://nil.csail.mit.edu/6.824/2015/labs/lab-3.html">6.824 Lab 3: Paxos-based Key/Value Service (mit.edu)</a></p>
+<p><a rel="external" href="https://static.usenix.org/event/nsdi11/tech/full_papers/Bolosky.pdf">Bolosky.pdf (usenix.org)</a></p>
+<p>In the kvraft system, we mainly handle GET / PUT / APPEND requests. The tests have the following constraints:</p>
 <ul>
-<li>客户端是一个一个发送请求的</li>
-<li>对于客户端的 PUT / APPEND 可能会出现网络错误，无法到达服务端，也可能多次到达服务端，服务器应该能保证exactly once.</li>
+<li>Clients send requests one at a time</li>
+<li>PUT / APPEND requests may fail due to network errors (not reaching the server) or arrive multiple times; the server should guarantee exactly-once semantics</li>
 </ul>
-<h2 id="mu-biao">目标</h2>
+<h2 id="goals">Goals</h2>
 <ul>
-<li>完成所有的Test</li>
+<li>Pass all tests</li>
 </ul>
-<h2 id="wan-cheng-suo-you-de-test">完成所有的Test</h2>
+<h2 id="passing-all-tests">Passing All Tests</h2>
 <ul>
-<li>第一步，完成TestBasic3A， 这个测试里面，每个client写不同的key，然后多次迭代，看看每次写入和读取的是否一致。</li>
-<li>在Snap的时候，把所有的状态就写进去就可以了。</li>
+<li>First step: pass TestBasic3A. This test has each client writing different keys across multiple iterations, checking if reads and writes are consistent.</li>
+<li>For snapshots, just write all state into them.</li>
 </ul>
-<h3 id="xi-jie">细节</h3>
+<h3 id="details">Details</h3>
 <ul>
-<li>对于server端来说，如何存储key / value。</li>
-<li>对于Get请求，需要把它放到log里面处理吗</li>
-<li>如果把所有的请求都通过Start放入到Log里面， 什么时候apply，apply之后怎么返回。</li>
+<li>How to store key/value on the server side</li>
+<li>Does a Get request need to go through the log?</li>
+<li>If all requests go through Start into the log, when to apply, and how to return results after applying</li>
 </ul>
-<h3 id="wei-dai-ma">伪代码</h3>
-<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python">&#x2F;&#x2F; 客户端代码
+<h3 id="pseudocode">Pseudocode</h3>
+<pre><code data-lang="python">// Client code
 
 while not_complete:
 	select_peer
 	rpc_call_cmd()
-  if errcode == ErrWrongLeader &#x2F; ErrTimeout:
+  if errcode == ErrWrongLeader / ErrTimeout:
 		continue
   return result
 
-&#x2F;&#x2F; 服务器代码
+// Server code
 cmd = get_a_cmd()
 start(cmd)
 ......
@@ -108,18 +121,18 @@ wait cmd
 		return ErrTimeout
 return cmd.result
 
-    
+
 </code></pre>
-<h3 id="xi-jie-chu-li">细节处理</h3>
+<h3 id="detail-handling">Detail Handling</h3>
 <ul>
-<li>所有的请求，都需要放到logs里面，然后在apply的时候处理. Apply的时候，因为是在单独的线程，如果其实 key / value 直接用map就行。</li>
-<li>对于Put 和 Append请求，我们需要为每个client配置一个incremental seq id, 然后在服务端处理的时候保证，对于同一个client id, seq id 是递增的，在这个case里面，应该是每次都是喜加一。</li>
-<li>对于已经执行过的PUT / APPEND 请求 (seq id比当前的小）， 可以直接返回成功。</li>
-<li>在服务器端维护一个 (log_idx, log_term) → (chan result) 的map， apply处理结束之后，给chan result发送消息，然后结束该rpc</li>
-<li>可以把 (client_id , seq_id) 的逻辑封装在内部，对外只暴露 OnMessage / OnSnapshot 的接口。</li>
+<li>All requests need to go through logs, then get processed during apply. Since apply runs in a separate thread, key/value storage can simply use a map.</li>
+<li>For Put and Append requests, configure an incremental seq id for each client. On the server side, ensure that for the same client id, seq id is monotonically increasing - in this case, incrementing by one each time.</li>
+<li>For already-executed PUT / APPEND requests (seq id smaller than current), return success directly.</li>
+<li>Maintain a (log_idx, log_term) → (chan result) map on the server. After apply processing, send a message to chan result to end the RPC.</li>
+<li>You can encapsulate the (client_id, seq_id) logic internally, only exposing OnMessage / OnSnapshot interfaces externally.</li>
 </ul>
-<h2 id="zong-jie">总结</h2>
-<p>kvraft里面主要增加了状态处理完成之后，给客户端应答的工作。如果客户端是一个长链接，可以异步的返回处理结果，这个就跟zk比较类似了。</p>
+<h2 id="summary">Summary</h2>
+<p>KVRaft mainly adds the work of responding to clients after state processing. If the client uses a long connection, results can be returned asynchronously, similar to ZooKeeper.</p>
 <p><a href="/raft/">Back</a></p>
 
     </div>
@@ -137,12 +150,12 @@ return cmd.result
 </div>
 
     </div>
-    <script src="https://blog.gaxxx.me/js/slim.js"></script>
-    <script src="https://blog.gaxxx.me/js/elasticlunr.min.js"></script>
-    <script src="https://blog.gaxxx.me/search_index.zh.js"></script>
-    <script src="https://blog.gaxxx.me/js/lunr.stemmer.support.js"></script>
-    <script src="https://blog.gaxxx.me/js/lunr.zh.js"></script>
-    <script src="https://blog.gaxxx.me/js/search.js"></script>
+    <script src="https://gaxxx.github.io/js/slim.js"></script>
+    <script src="https://gaxxx.github.io/js/elasticlunr.min.js"></script>
+    <script src="https://gaxxx.github.io/search_index.en.js"></script>
+    <script src="https://gaxxx.github.io/js/lunr.stemmer.support.js"></script>
+    <script src="https://gaxxx.github.io/js/lunr.en.js"></script>
+    <script src="https://gaxxx.github.io/js/search.js"></script>
     
 </body>
 

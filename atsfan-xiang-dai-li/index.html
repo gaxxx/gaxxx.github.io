@@ -5,9 +5,9 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
     <title>
-Apache Traffic Server 反向代理 &middot; siwu&#x27;s blog
+Apache Traffic Server Reverse Proxy &middot; siwu&#x27;s blog
 </title>
-    <link rel="stylesheet" href="https://blog.gaxxx.me/slim.css">
+    <link rel="stylesheet" href="https://gaxxx.github.io/slim.css">
     
     
 </head>
@@ -16,7 +16,7 @@ Apache Traffic Server 反向代理 &middot; siwu&#x27;s blog
     <div class="container">
         
 <div class="header">
-    <h1 class="site-title"><a href="https:&#x2F;&#x2F;blog.gaxxx.me">siwu&#x27;s blog</a></h1>
+    <h1 class="site-title"><a href="https:&#x2F;&#x2F;gaxxx.github.io">siwu&#x27;s blog</a></h1>
     <input id="search" class=".next" type="search" placeholder="Search" />
     <p class="site-tagline"></p>
     <div class="nav">
@@ -26,7 +26,7 @@ Apache Traffic Server 反向代理 &middot; siwu&#x27;s blog
         <ul class="nav-list">
             
             
-            <li><a href="https:&#x2F;&#x2F;blog.gaxxx.me&#x2F;tags">Tags</a></li>
+            <li><a href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;tags">Tags</a></li>
             
             
             <li class="spacer">&ac;</li>
@@ -51,75 +51,87 @@ Apache Traffic Server 反向代理 &middot; siwu&#x27;s blog
 <div class="post">
     
     
-<h2 class="post-title"><a href="https:&#x2F;&#x2F;blog.gaxxx.me&#x2F;atsfan-xiang-dai-li&#x2F;">Apache Traffic Server 反向代理</a></h2>
+<h2 class="post-title"><a href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;atsfan-xiang-dai-li&#x2F;">Apache Traffic Server Reverse Proxy</a></h2>
 <div class="post-header">
     <span class="post-date">July 25, 2014</span>
     
     <div class="post-tags">
         
-        <span class="post-tag">#<a href="https://blog.gaxxx.me/tags/cdn/">cdn</a></span>
+        <span class="post-tag">#<a href="https://gaxxx.github.io/tags/cdn/">cdn</a></span>
         
     </div>
     
 </div>
 
+    
+
+  
+    
+    <a class="lang-toggle" href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;zh&#x2F;atsfan-xiang-dai-li&#x2F;">
+      中文
+    </a>
+    
+  
+    
+  
+
+
     <div class="post-content">
-        <p>Apache出的一个高效CDN服务器，应用案例有：
-<a href="http://www.bizety.com/2014/02/23/comcasts-internal-cdn/">Comcast</a>
-<a href="http://www.infoq.com/cn/presentations/apache-traffic-server-and-cdn-practice">Taobao</a></p>
-<span id="continue-reading"></span><h2 id="an-zhuang">安装</h2>
+        <p>A high-performance CDN server from Apache, with use cases including:
+<a rel="external" href="http://www.bizety.com/2014/02/23/comcasts-internal-cdn/">Comcast</a>
+<a rel="external" href="http://www.infoq.com/cn/presentations/apache-traffic-server-and-cdn-practice">Taobao</a></p>
+<span id="continue-reading"></span><h2 id="installation">Installation</h2>
 <p>Ubuntu:
 apt-get install trafficserver</p>
 <p>Manual:
 https://docs.trafficserver.apache.org/en/latest/admin/getting-started.en.html</p>
-<h2 id="pei-zhi-diao-shi-can-shu">配置调试参数</h2>
-<pre><code>&#x2F;&#x2F;添加VIA字段用于调试  
-traffic_line -s  proxy.config.http.insert_response_via_str -v 2  
-traffic_line -s  proxy.config.http.insert_request_via_str -v 1  
+<h2 id="configure-debug-parameters">Configure Debug Parameters</h2>
+<pre><code>//Add VIA field for debugging
+traffic_line -s  proxy.config.http.insert_response_via_str -v 2
+traffic_line -s  proxy.config.http.insert_request_via_str -v 1
 
-&#x2F;&#x2F;修改默认的cache策略  
+//Modify default cache policy
 traffic_line -s proxy.config.http.cache.required_headers -v 0
 
-&#x2F;&#x2F;commit 操作  
+//Commit changes
 traffic_line -x
 </code></pre>
-<h2 id="pei-zhi-xu-yao-jia-su-de-wang-zhan">配置需要加速的网站</h2>
-<pre><code>&#x2F;&#x2F;配置remap.config,  默认的ats端口是8080,
-&#x2F;&#x2F;如果需要配置加速 mirrors.163.com
-&#x2F;&#x2F;本地镜像地址为 mirrors.gaxxx.me
-map http:&#x2F;&#x2F;mirrors.gaxxx.me:8080&#x2F; http:&#x2F;&#x2F;mirrors.163.com&#x2F;
+<h2 id="configure-sites-to-accelerate">Configure Sites to Accelerate</h2>
+<pre><code>//Configure remap.config, default ATS port is 8080
+//To accelerate mirrors.163.com
+//Local mirror address is mirrors.gaxxx.me
+map http://mirrors.gaxxx.me:8080/ http://mirrors.163.com/
 </code></pre>
-<h2 id="ce-shi-pei-zhi-xiao-guo">测试配置效果</h2>
-<pre><code>curl http:&#x2F;&#x2F;mirrors.gaxxx.me:8080&#x2F;  2&gt;&amp;1 | less
+<h2 id="test-configuration">Test Configuration</h2>
+<pre><code>curl http://mirrors.gaxxx.me:8080/  2&gt;&amp;1 | less
 </code></pre>
-<p>可以看到:
+<p>You can see:
 Via: http/1.1 tv140002 (ApacheTrafficServer/5.1.0 [cRs f ])</p>
-<p>//查看VIA代码,cache命中在内存</p>
-<pre><code>traffic_line --decode_via  &quot;cRs f&quot; 
+<p>//Check VIA codes, cache hit in memory</p>
+<pre><code>traffic_line --decode_via  &quot;cRs f&quot;
 Via Header Details:
 Result of Traffic Server cache lookup for URL          :in cache, fresh Ram hit (a cache &quot;HIT&quot;)
 Response information received from origin server       :no server connection needed
 Result of document write-to-cache:                     :no cache write performed
 </code></pre>
-<h2 id="chang-yong-ming-ling">常用命令</h2>
-<pre><code>trafficserver ATS服务器运行脚本
-traffic_line 配置ATS，重载ATS服务
-traffic_logstats ATS日志查看，可以查看cache命中等等
+<h2 id="common-commands">Common Commands</h2>
+<pre><code>trafficserver    ATS server run script
+traffic_line     Configure ATS, reload ATS service
+traffic_logstats ATS log viewer, check cache hits etc.
 </code></pre>
-<h2 id="ji-qun-kong-zhi">集群控制</h2>
-<p>ATS有两种集群模式， Manager Only 和 Full Cluster</p>
+<h2 id="cluster-control">Cluster Control</h2>
+<p>ATS has two cluster modes: Manager Only and Full Cluster</p>
 <ul>
-<li>ManagerOnly: 同步配置文件，每个node的cache是分开的</li>
-<li>Full Cluster: 所有node的cache合并成一个逻辑上的cache，节点之间可能通过网络传输cache object, 因此对于内部网络有一个较高的要求</li>
+<li>ManagerOnly: Syncs configuration files, each node's cache is separate</li>
+<li>Full Cluster: All nodes' caches are merged into one logical cache; nodes may transfer cache objects over the network, requiring high internal network bandwidth</li>
 </ul>
-<p><a href="https://docs.trafficserver.apache.org/en/latest/admin/cluster-howto.en.html">配置传送门</a></p>
-<h2 id="ri-zhi-guan-li">日志管理</h2>
-<p>ATS有独立的日志系统，跟nginx一样，有错误日志(error.log),事件日志(access.log),系统日志(message.log)
-还能根据配置生成summary log</p>
-<p>在日志的格式上，可以采用常用的Squid格式，也能采用ATS自定义的xml格式，存储类型可以是binary或者ASCII，支持 '翻滚吧，日志'(logrotate) 功能</p>
-<p>支持集群式部署日志</p>
-<p>具体查看 <a href="https://docs.trafficserver.apache.org/en/latest/admin/working-log-files.en.html">ATS日志</a></p>
-<h2 id="huan-cun-guan-li">缓存管理</h2>
+<p><a rel="external" href="https://docs.trafficserver.apache.org/en/latest/admin/cluster-howto.en.html">Configuration guide</a></p>
+<h2 id="log-management">Log Management</h2>
+<p>ATS has an independent logging system, similar to nginx, with error logs (error.log), event logs (access.log), and system logs (message.log). It can also generate summary logs based on configuration.</p>
+<p>For log formats, you can use the common Squid format or ATS's custom XML format. Storage types can be binary or ASCII, with logrotate support.</p>
+<p>Supports clustered log deployment.</p>
+<p>See <a rel="external" href="https://docs.trafficserver.apache.org/en/latest/admin/working-log-files.en.html">ATS Logging</a> for details.</p>
+<h2 id="cache-management">Cache Management</h2>
 
     </div>
     
@@ -136,12 +148,12 @@ traffic_logstats ATS日志查看，可以查看cache命中等等
 </div>
 
     </div>
-    <script src="https://blog.gaxxx.me/js/slim.js"></script>
-    <script src="https://blog.gaxxx.me/js/elasticlunr.min.js"></script>
-    <script src="https://blog.gaxxx.me/search_index.zh.js"></script>
-    <script src="https://blog.gaxxx.me/js/lunr.stemmer.support.js"></script>
-    <script src="https://blog.gaxxx.me/js/lunr.zh.js"></script>
-    <script src="https://blog.gaxxx.me/js/search.js"></script>
+    <script src="https://gaxxx.github.io/js/slim.js"></script>
+    <script src="https://gaxxx.github.io/js/elasticlunr.min.js"></script>
+    <script src="https://gaxxx.github.io/search_index.en.js"></script>
+    <script src="https://gaxxx.github.io/js/lunr.stemmer.support.js"></script>
+    <script src="https://gaxxx.github.io/js/lunr.en.js"></script>
+    <script src="https://gaxxx.github.io/js/search.js"></script>
     
 </body>
 

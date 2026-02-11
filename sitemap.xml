@@ -1,183 +1,363 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-        <loc>https://blog.gaxxx.me/</loc>
+        <loc>https://gaxxx.github.io/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/atsfan-xiang-dai-li/</loc>
+        <loc>https://gaxxx.github.io/atsfan-xiang-dai-li/</loc>
         <lastmod>2014-07-25</lastmod>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/dockerjian-jie/</loc>
+        <loc>https://gaxxx.github.io/dockerjian-jie/</loc>
         <lastmod>2014-08-20</lastmod>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/go-141-in-android/</loc>
+        <loc>https://gaxxx.github.io/go-141-in-android/</loc>
         <lastmod>2015-02-09</lastmod>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/how-to-build-rust-service-using-actix-and-postgresql/</loc>
+        <loc>https://gaxxx.github.io/how-to-build-rust-service-using-actix-and-postgresql/</loc>
         <lastmod>2020-07-09</lastmod>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/kotin-with-rust/</loc>
+        <loc>https://gaxxx.github.io/kotin-with-rust/</loc>
         <lastmod>2021-11-22</lastmod>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/lapis-on-openwrt/</loc>
+        <loc>https://gaxxx.github.io/lapis-on-openwrt/</loc>
         <lastmod>2015-02-09</lastmod>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/li-yong-swigshi-xian-c-golanghun-he-bian-cheng/</loc>
+        <loc>https://gaxxx.github.io/li-yong-swigshi-xian-c-golanghun-he-bian-cheng/</loc>
         <lastmod>2014-06-20</lastmod>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/nginxbian-liang-sheng-cun-qi/</loc>
+        <loc>https://gaxxx.github.io/nginxbian-liang-sheng-cun-qi/</loc>
         <lastmod>2014-08-05</lastmod>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/page/1/</loc>
+        <loc>https://gaxxx.github.io/page/1/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/page/2/</loc>
+        <loc>https://gaxxx.github.io/page/2/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/raft/</loc>
+        <loc>https://gaxxx.github.io/raft/</loc>
         <lastmod>2021-11-05</lastmod>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/raft/kvraft/</loc>
+        <loc>https://gaxxx.github.io/raft/kvraft/</loc>
         <lastmod>2021-11-10</lastmod>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/raft/prepare/</loc>
+        <loc>https://gaxxx.github.io/raft/prepare/</loc>
         <lastmod>2021-11-05</lastmod>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/raft/raft/</loc>
+        <loc>https://gaxxx.github.io/raft/raft/</loc>
         <lastmod>2021-11-10</lastmod>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/raft/shardkv/</loc>
+        <loc>https://gaxxx.github.io/raft/shardkv/</loc>
         <lastmod>2021-11-10</lastmod>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/tags/</loc>
+        <loc>https://gaxxx.github.io/tags/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/tags/android/</loc>
+        <loc>https://gaxxx.github.io/tags/android/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/tags/android/page/1/</loc>
+        <loc>https://gaxxx.github.io/tags/android/page/1/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/tags/cdn/</loc>
+        <loc>https://gaxxx.github.io/tags/cdn/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/tags/cdn/page/1/</loc>
+        <loc>https://gaxxx.github.io/tags/cdn/page/1/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/tags/cloud/</loc>
+        <loc>https://gaxxx.github.io/tags/cloud/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/tags/cloud/page/1/</loc>
+        <loc>https://gaxxx.github.io/tags/cloud/page/1/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/tags/crud/</loc>
+        <loc>https://gaxxx.github.io/tags/crud/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/tags/crud/page/1/</loc>
+        <loc>https://gaxxx.github.io/tags/crud/page/1/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/tags/golang/</loc>
+        <loc>https://gaxxx.github.io/tags/golang/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/tags/golang/page/1/</loc>
+        <loc>https://gaxxx.github.io/tags/golang/page/1/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/tags/kvraft/</loc>
+        <loc>https://gaxxx.github.io/tags/kvraft/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/tags/kvraft/page/1/</loc>
+        <loc>https://gaxxx.github.io/tags/kvraft/page/1/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/tags/lua/</loc>
+        <loc>https://gaxxx.github.io/tags/lua/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/tags/lua/page/1/</loc>
+        <loc>https://gaxxx.github.io/tags/lua/page/1/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/tags/nginx/</loc>
+        <loc>https://gaxxx.github.io/tags/nginx/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/tags/nginx/page/1/</loc>
+        <loc>https://gaxxx.github.io/tags/nginx/page/1/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/tags/openwrt/</loc>
+        <loc>https://gaxxx.github.io/tags/openwrt/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/tags/openwrt/page/1/</loc>
+        <loc>https://gaxxx.github.io/tags/openwrt/page/1/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/tags/pass/</loc>
+        <loc>https://gaxxx.github.io/tags/pass/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/tags/pass/page/1/</loc>
+        <loc>https://gaxxx.github.io/tags/pass/page/1/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/tags/raft/</loc>
+        <loc>https://gaxxx.github.io/tags/raft/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/tags/raft/page/1/</loc>
+        <loc>https://gaxxx.github.io/tags/raft/page/1/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/tags/rails/</loc>
+        <loc>https://gaxxx.github.io/tags/rails/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/tags/rails/page/1/</loc>
+        <loc>https://gaxxx.github.io/tags/rails/page/1/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/tags/ror/</loc>
+        <loc>https://gaxxx.github.io/tags/ror/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/tags/ror/page/1/</loc>
+        <loc>https://gaxxx.github.io/tags/ror/page/1/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/tags/ruby/</loc>
+        <loc>https://gaxxx.github.io/tags/ruby/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/tags/ruby/page/1/</loc>
+        <loc>https://gaxxx.github.io/tags/ruby/page/1/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/tags/rust/</loc>
+        <loc>https://gaxxx.github.io/tags/rust/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/tags/rust/page/1/</loc>
+        <loc>https://gaxxx.github.io/tags/rust/page/1/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/tags/selenum/</loc>
+        <loc>https://gaxxx.github.io/tags/selenum/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/tags/selenum/page/1/</loc>
+        <loc>https://gaxxx.github.io/tags/selenum/page/1/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/tags/shardkv/</loc>
+        <loc>https://gaxxx.github.io/tags/shardkv/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/tags/shardkv/page/1/</loc>
+        <loc>https://gaxxx.github.io/tags/shardkv/page/1/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/tags/swig/</loc>
+        <loc>https://gaxxx.github.io/tags/swig/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/tags/swig/page/1/</loc>
+        <loc>https://gaxxx.github.io/tags/swig/page/1/</loc>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/web-application-architectures-ror/</loc>
+        <loc>https://gaxxx.github.io/web-application-architectures-ror/</loc>
         <lastmod>2014-08-23</lastmod>
     </url>
     <url>
-        <loc>https://blog.gaxxx.me/zhua-qu-ji-yu-jsde-dong-tai-ye-mian/</loc>
+        <loc>https://gaxxx.github.io/zh/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/atsfan-xiang-dai-li/</loc>
+        <lastmod>2014-07-25</lastmod>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/dockerjian-jie/</loc>
+        <lastmod>2014-08-20</lastmod>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/go-141-in-android/</loc>
+        <lastmod>2015-02-09</lastmod>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/how-to-build-rust-service-using-actix-and-postgresql/</loc>
+        <lastmod>2020-07-09</lastmod>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/kotin-with-rust/</loc>
+        <lastmod>2021-11-22</lastmod>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/lapis-on-openwrt/</loc>
+        <lastmod>2015-02-09</lastmod>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/li-yong-swigshi-xian-c-golanghun-he-bian-cheng/</loc>
+        <lastmod>2014-06-20</lastmod>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/nginxbian-liang-sheng-cun-qi/</loc>
+        <lastmod>2014-08-05</lastmod>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/page/1/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/page/2/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/raft/</loc>
+        <lastmod>2021-11-05</lastmod>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/raft/kvraft/</loc>
+        <lastmod>2021-11-10</lastmod>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/raft/prepare/</loc>
+        <lastmod>2021-11-05</lastmod>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/raft/raft/</loc>
+        <lastmod>2021-11-10</lastmod>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/raft/shardkv/</loc>
+        <lastmod>2021-11-10</lastmod>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/tags/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/tags/android/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/tags/android/page/1/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/tags/cdn/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/tags/cdn/page/1/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/tags/cloud/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/tags/cloud/page/1/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/tags/crud/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/tags/crud/page/1/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/tags/golang/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/tags/golang/page/1/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/tags/kvraft/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/tags/kvraft/page/1/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/tags/lua/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/tags/lua/page/1/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/tags/nginx/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/tags/nginx/page/1/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/tags/openwrt/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/tags/openwrt/page/1/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/tags/pass/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/tags/pass/page/1/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/tags/raft/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/tags/raft/page/1/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/tags/rails/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/tags/rails/page/1/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/tags/ror/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/tags/ror/page/1/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/tags/ruby/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/tags/ruby/page/1/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/tags/rust/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/tags/rust/page/1/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/tags/selenum/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/tags/selenum/page/1/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/tags/shardkv/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/tags/shardkv/page/1/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/tags/swig/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/tags/swig/page/1/</loc>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/web-application-architectures-ror/</loc>
+        <lastmod>2014-08-23</lastmod>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zh/zhua-qu-ji-yu-jsde-dong-tai-ye-mian/</loc>
+        <lastmod>2014-09-21</lastmod>
+    </url>
+    <url>
+        <loc>https://gaxxx.github.io/zhua-qu-ji-yu-jsde-dong-tai-ye-mian/</loc>
         <lastmod>2014-09-21</lastmod>
     </url>
 </urlset>

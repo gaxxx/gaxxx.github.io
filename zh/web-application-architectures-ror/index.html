@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <title>
+Web Application Architectures(ROR) &middot; siwu的博客
+</title>
+    <link rel="stylesheet" href="https://gaxxx.github.io/slim.css">
+    
+    
+</head>
+
+<body>
+    <div class="container">
+        
+<div class="header">
+    <h1 class="site-title"><a href="https:&#x2F;&#x2F;gaxxx.github.io">siwu的博客</a></h1>
+    <input id="search" class=".next" type="search" placeholder="Search" />
+    <p class="site-tagline"></p>
+    <div class="nav">
+        <a class="nav-btn" href="#">
+            <span class="ci ci-burger"></span>
+        </a>
+        <ul class="nav-list">
+            
+            
+            <li><a href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;tags">Tags</a></li>
+            
+            
+            <li class="spacer">&ac;</li>
+            
+            
+            <li><a href="https://www.linkedin.com/in/gaxxx">LinkedIn</a></li>
+            
+            <li><a href="https://github.com/gaxxx">Github</a></li>
+            
+            
+        </ul>
+    </div>
+    <div class="search-results">
+    <ul class="search-results__items"></ul>
+    </div>
+
+</div>
+
+        <div class="content">
+            <div class="posts">
+                
+<div class="post">
+    
+    
+<h2 class="post-title"><a href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;zh&#x2F;web-application-architectures-ror&#x2F;">Web Application Architectures(ROR)</a></h2>
+<div class="post-header">
+    <span class="post-date">August 23, 2014</span>
+    
+    <div class="post-tags">
+        
+        <span class="post-tag">#<a href="https://gaxxx.github.io/tags/ruby/">ruby</a></span>
+        
+        <span class="post-tag">#<a href="https://gaxxx.github.io/tags/rails/">rails</a></span>
+        
+        <span class="post-tag">#<a href="https://gaxxx.github.io/tags/ror/">ror</a></span>
+        
+    </div>
+    
+</div>
+
+    
+
+  
+    
+    <a class="lang-toggle" href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;web-application-architectures-ror&#x2F;">
+      EN
+    </a>
+    
+  
+    
+  
+
+
+    <div class="post-content">
+        <p>最近学了一门<a rel="external" href="https://class.coursera.org/webapplications-002">Web Application Architectures</a>,本来是打算借鉴一下其中的架构，然后用golang做一个简单CMS类应用实现的，但是学完发现，ROR用来开发的效率还不错，而且能自动生成不少代码。</p>
+<span id="continue-reading"></span>
+<p>即使相对于号称快捷开发的django,同样的任务，ROR的编码量还要更少一些,但有些人认为，django的架构，要更容易控制一些，参考很有意思的一篇blog, <a rel="external" href="https://bernardopires.com/2014/03/rails-vs-django-an-in-depth-technical-comparison/">RAILS VS DJANGO: AN IN-DEPTH TECHNICAL COMPARISON</a>.</p>
+<h2 id="an-zhuang">安装</h2>
+<p>在Archlinux下，直接安装ruby</p>
+<pre><code>root# pacman -S ruby
+root# gem install rails
+</code></pre>
+<p>在其他操作系统上，包括ubuntu，ruby的版本太老了....可以参考<a rel="external" href="http://rvm.io/rvm/install">rvm</a>,可以在<a rel="external" href="http://railscasts.com/episodes/310-getting-started-with-rails">railscast</a>上找到相关视频</p>
+<h2 id="chuang-jian-ying-yong">创建应用</h2>
+<p>安装完rails之后，可以直接创建应用了</p>
+<pre><code>root# rails new blog
+</code></pre>
+<p>应用自动建立了相关目录，主要有</p>
+<ul>
+<li>config 配置目录，主要有数据库的配置，router的配置</li>
+<li>db 数据库的shema</li>
+<li>public 404文件等</li>
+<li>app MVC相关的东西，其中
+<ul>
+<li>assets js和css文件</li>
+<li>models (MVC 中的M)</li>
+<li>views (MVC 中的V)</li>
+<li>controller  (MVC中的C)</li>
+</ul>
+</li>
+</ul>
+<h2 id="tian-jia-shu-ju-ku-zhi-chi">添加数据库支持</h2>
+<p>rails默认使用sqlite，也可以使用mysql,甚至mongodb,以mysql为例
+首先安装mysql以及相应的gem</p>
+<ul>
+<li>安装mysql(以Archlinux为例)</li>
+</ul>
+<pre><code>root# pacman -S  mysql ; gem instamysql2
+</code></pre>
+<ul>
+<li>编辑config/database.yml  (注意看默认配置文件的 &lt;&lt;: *default 的代码复用)</li>
+</ul>
+<pre><code>development:
+    adapter: mysql2
+    #使用的数据库
+    database: db_name_dev
+    #mysql用户名
+    username: woo
+    #mysql密码
+    password: aabb
+</code></pre>
+<ul>
+<li>增加post和comment数据结构</li>
+</ul>
+<pre><code>root# rails generate scaffold post title:string body:text
+root# rails generate scaffold comment post_id:integer body:text
+root# rake db:migrate
+</code></pre>
+<p>这样就增加了post和comment的MVC以及相关的测试用例，更有趣的是，增加了post和comment的restful风格的界面
+同时可以通过rake routes查看目前支持的restful的url,同时可以启动ror(默认使用3000端口),以及访问http://127.0.0.1:3000/posts/</p>
+<pre><code>root# rails s 
+</code></pre>
+<h2 id="xiu-gai-jie-mian-luo-ji">修改界面逻辑</h2>
+<ul>
+<li>增加post与comment之间的关联，命令太多了，直接上<a rel="external" href="https://asciinema.org">asciinema</a></li>
+</ul>
+<script type="text/javascript" src="https://asciinema.org/a/11671.js" id="asciicast-11671" async></script>
+<ul>
+<li>修改相关的router和view，在post页面展现comments,继续上asciinema</li>
+</ul>
+<script type="text/javascript" src="https://asciinema.org/a/11672.js" id="asciicast-11672" async></script>
+<ul>
+<li>修改controller，每次提交comment之后重定向到post页面,修改comment的create函数</li>
+</ul>
+<script type="text/javascript" src="https://asciinema.org/a/11674.js" id="asciicast-11674" async></script>
+<h2 id="wan-zheng-de-shi-li">完整的示例</h2>
+<p>见<a rel="external" href="https://bitbucket.org/gaxxx/blog_ror">Bitbucket</a></p>
+
+    </div>
+    
+</div>
+
+            </div>
+            
+        </div>
+        
+<div class="footer">
+    
+    <p>Powered by <a href="https://getzola.org">Zola</a></p>
+    
+</div>
+
+    </div>
+    <script src="https://gaxxx.github.io/js/slim.js"></script>
+    <script src="https://gaxxx.github.io/js/elasticlunr.min.js"></script>
+    <script src="https://gaxxx.github.io/search_index.zh.js"></script>
+    <script src="https://gaxxx.github.io/js/lunr.stemmer.support.js"></script>
+    <script src="https://gaxxx.github.io/js/lunr.zh.js"></script>
+    <script src="https://gaxxx.github.io/js/search.js"></script>
+    
+</body>
+
+</html>

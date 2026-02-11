@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <title>
+nginx变量生存期 &middot; siwu的博客
+</title>
+    <link rel="stylesheet" href="https://gaxxx.github.io/slim.css">
+    
+    
+</head>
+
+<body>
+    <div class="container">
+        
+<div class="header">
+    <h1 class="site-title"><a href="https:&#x2F;&#x2F;gaxxx.github.io">siwu的博客</a></h1>
+    <input id="search" class=".next" type="search" placeholder="Search" />
+    <p class="site-tagline"></p>
+    <div class="nav">
+        <a class="nav-btn" href="#">
+            <span class="ci ci-burger"></span>
+        </a>
+        <ul class="nav-list">
+            
+            
+            <li><a href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;tags">Tags</a></li>
+            
+            
+            <li class="spacer">&ac;</li>
+            
+            
+            <li><a href="https://www.linkedin.com/in/gaxxx">LinkedIn</a></li>
+            
+            <li><a href="https://github.com/gaxxx">Github</a></li>
+            
+            
+        </ul>
+    </div>
+    <div class="search-results">
+    <ul class="search-results__items"></ul>
+    </div>
+
+</div>
+
+        <div class="content">
+            <div class="posts">
+                
+<div class="post">
+    
+    
+<h2 class="post-title"><a href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;zh&#x2F;nginxbian-liang-sheng-cun-qi&#x2F;">nginx变量生存期</a></h2>
+<div class="post-header">
+    <span class="post-date">August 05, 2014</span>
+    
+    <div class="post-tags">
+        
+        <span class="post-tag">#<a href="https://gaxxx.github.io/tags/nginx/">nginx</a></span>
+        
+        <span class="post-tag">#<a href="https://gaxxx.github.io/tags/lua/">lua</a></span>
+        
+        <span class="post-tag">#<a href="https://gaxxx.github.io/tags/cdn/">cdn</a></span>
+        
+    </div>
+    
+</div>
+
+    
+
+  
+    
+    <a class="lang-toggle" href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;nginxbian-liang-sheng-cun-qi&#x2F;">
+      EN
+    </a>
+    
+  
+    
+  
+
+
+    <div class="post-content">
+        <p>在nginx中，变量有多种形式，一般来说，在同一个location里面，变量是一致的，但是经常出现的情况是，在从一个location转移到另外一个location的时候，变量会发生变化，有些变量会改变、有些变量会结束生存期。</p>
+<p>如果看看location跳转的类型和变量类型的组合，那么变量的生存期就变得非常的复杂和有趣...</p>
+<span id="continue-reading"></span><h2 id="cong-yi-ge-locationzhuan-yi-dao-ling-wai-yi-ge-locationyou-ru-xia-ji-chong-fang-fa">从一个location转移到另外一个location有如下几种方法：</h2>
+<ul>
+<li>rewrite (rewrite_by_lua, rewrite_by_luafile)</li>
+<li>proxy_pass</li>
+</ul>
+<hr />
+<ul>
+<li>以下为ngx_openresty提供的模块</li>
+<li>ngx.exec</li>
+<li>ngx.location.capture</li>
+</ul>
+<h2 id="bian-liang-lei-xing">变量类型</h2>
+<ul>
+<li><a rel="external" href="http://nginx.org/en/docs/http/ngx_http_core_module.html#variables">nginx core 变量</a></li>
+<li>在nginx配置文件里面自定义变量  set $foo 'bar'</li>
+<li>Headers相关</li>
+</ul>
+<h2 id="bian-hua-gui-lu">变化规律</h2>
+<table><thead><tr><th>location change</th><th>nginx core</th><th>custom</th><th>headers</th></tr></thead><tbody>
+<tr><td>rewrite</td><td>uri相关变量</td><td>不变或者被覆盖</td><td>不变</td></tr>
+<tr><td>proxy_pass</td><td>uri相关变化，args不变，$remote_addr变成 127.0.0.1</td><td>为空</td><td><a rel="external" href="http://nginx.org/cn/docs/http/ngx_http_proxy_module.html#proxy_pass_header">proxy_pass</a>,自定义header不变</td></tr>
+<tr><td>ngx.exec</td><td>uri相关变量，args丢失</td><td>不变或者被覆盖</td><td>不变</td></tr>
+<tr><td>ngx.location.capture</td><td>uri相关变量，args丢失</td><td>为空</td><td>不变</td></tr>
+</tbody></table>
+<p>参考：</p>
+<ul>
+<li>http://wiki.nginx.org/HttpLuaModule</li>
+<li>http://nginx.org/en/docs/http/ngx_http_core_module.html</li>
+</ul>
+
+    </div>
+    
+</div>
+
+            </div>
+            
+        </div>
+        
+<div class="footer">
+    
+    <p>Powered by <a href="https://getzola.org">Zola</a></p>
+    
+</div>
+
+    </div>
+    <script src="https://gaxxx.github.io/js/slim.js"></script>
+    <script src="https://gaxxx.github.io/js/elasticlunr.min.js"></script>
+    <script src="https://gaxxx.github.io/search_index.zh.js"></script>
+    <script src="https://gaxxx.github.io/js/lunr.stemmer.support.js"></script>
+    <script src="https://gaxxx.github.io/js/lunr.zh.js"></script>
+    <script src="https://gaxxx.github.io/js/search.js"></script>
+    
+</body>
+
+</html>

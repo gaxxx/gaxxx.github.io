@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <title>
+利用swig实现C++,golang混合编程 &middot; siwu的博客
+</title>
+    <link rel="stylesheet" href="https://gaxxx.github.io/slim.css">
+    
+    
+</head>
+
+<body>
+    <div class="container">
+        
+<div class="header">
+    <h1 class="site-title"><a href="https:&#x2F;&#x2F;gaxxx.github.io">siwu的博客</a></h1>
+    <input id="search" class=".next" type="search" placeholder="Search" />
+    <p class="site-tagline"></p>
+    <div class="nav">
+        <a class="nav-btn" href="#">
+            <span class="ci ci-burger"></span>
+        </a>
+        <ul class="nav-list">
+            
+            
+            <li><a href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;tags">Tags</a></li>
+            
+            
+            <li class="spacer">&ac;</li>
+            
+            
+            <li><a href="https://www.linkedin.com/in/gaxxx">LinkedIn</a></li>
+            
+            <li><a href="https://github.com/gaxxx">Github</a></li>
+            
+            
+        </ul>
+    </div>
+    <div class="search-results">
+    <ul class="search-results__items"></ul>
+    </div>
+
+</div>
+
+        <div class="content">
+            <div class="posts">
+                
+<div class="post">
+    
+    
+<h2 class="post-title"><a href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;zh&#x2F;li-yong-swigshi-xian-c-golanghun-he-bian-cheng&#x2F;">利用swig实现C++,golang混合编程</a></h2>
+<div class="post-header">
+    <span class="post-date">June 20, 2014</span>
+    
+    <div class="post-tags">
+        
+        <span class="post-tag">#<a href="https://gaxxx.github.io/tags/golang/">golang</a></span>
+        
+        <span class="post-tag">#<a href="https://gaxxx.github.io/tags/swig/">swig</a></span>
+        
+    </div>
+    
+</div>
+
+    
+
+  
+    
+  
+    
+    <a class="lang-toggle" href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;li-yong-swigshi-xian-c-golanghun-he-bian-cheng&#x2F;">
+      EN
+    </a>
+    
+  
+
+
+    <div class="post-content">
+        <h2 id="shi-yan-xiang-mu">实验项目：</h2>
+<p>https://github.com/gaxxx/ctp/</p>
+<p>其中实现了两个主要的功能</p>
+<ol>
+<li>在golang中调用C++函数</li>
+<li>C++中触发回调时，调用golang的代码</li>
+</ol>
+<span id="continue-reading"></span><h2 id="zhun-bei-swigwen-jian">准备swig文件</h2>
+<p>以下的部分实现了功能1</p>
+<pre><code>%module ctp %{
+  #include &quot;ThostFtdcMdApi.h&quot;
+  #include &quot;ThostFtdcTraderApi.h&quot;
+  #include &quot;ThostFtdcUserApiDataType.h&quot;
+  #include &quot;ThostFtdcUserApiStruct.h&quot;
+  #include &quot;helper.h&quot;
+%}
+
+%include &quot;../c++/ThostFtdcMdApi.h&quot;
+%include &quot;../c++/ThostFtdcTraderApi.h&quot;
+%include &quot;../c++/ThostFtdcUserApiDataType.h&quot;
+%include &quot;../c++/ThostFtdcUserApiStruct.h&quot;
+%include &quot;../helper/helper.h&quot;
+</code></pre>
+<p>但是要完成回调，需要用到director的特性
+如果要对CThostFtdcTraderSpi的类进行回调，需要定义一个实现了CThostFtdcTraderSpi的golang结构体,通过NewDirector&lt;类名&gt; 进行封装，传给C++.</p>
+<pre><code>%module(directors=&quot;1&quot;) CThostFtdcTraderSpi
+%feature(&quot;director&quot;) CThostFtdcTraderSpi;
+
+%insert(go_wrapper) %{
+
+type GoThostFtdcTraderSpi struct {
+        CThostFtdcTraderSpi
+}
+
+func GTrader(impl CThostFtdcTraderSpi) CThostFtdcTraderSpi {
+        return NewDirectorCThostFtdcTraderSpi(&amp;GoThostFtdcTraderSpi{impl})
+}
+</code></pre>
+<p>在实际的类实现中，需要完成 CThostFtdcTraderSpi的接口实现
+为简单起见，我封装了实现所有空接口的变量ThostFtdcTraderSpiImplBase.
+因此在编写实际类实现时,只需要重写必要的回调函数接口就可以了</p>
+<pre><code>type TradeApi struct {
+    	ctp.ThostFtdcTraderSpiImplBase
+}
+
+//回调函数
+func (g *TradeApi) OnFrontConnected() {
+        fmt.Printf(&quot;connected\n&quot;)
+}
+</code></pre>
+<p>需要注意的是，因为swig利用cgo，因此，不能再引入其他利用cgo编译的库了 :(
+如果有其他需要用C/C++实现的函数，可以在 helper.h / helper.cpp 中完成</p>
+<p>执行编译</p>
+<pre><code>
+#生成ctp_wrap.cxx ctp_gc.c ctp.go
+swig -go -c++ -intgosize 64 -soname libctp.so ./ctp.swig
+#编译libctp.so
+g++ ctp_wrap.cxx -o ctp_wrap.o
+g++ helper.cpp -o helper.o
+g++ -shared -o libctp.so ctp_wrap.o helper.o
+#编译golang package
+go tool 6c -I/usr/local/go/pkg/linux_amd64 -D _64BIT ctp_gc.c
+go tool 6g ctp.go
+go tool pack grc ctp.a ctp.6 ctp_gc.6
+
+</code></pre>
+<p>将libctp.so放到lib路径中 (/usr/lib/)
+将ctp.a 放到golang的package中 (/usr/local/go/pkg/linux_amd64/)
+将cgp.go放到golang的source中 (/usr/local/go/src/pkt/ctp/)</p>
+<p>实际应用</p>
+<pre><code>
+//继承ctp.ThostFtdcTraderSpiImplBase
+type TradeApi struct {
+     ctp.ThostFtdcTraderSpiImplBase
+}
+
+//重写回调接口
+func (g *TradeApi) OnFrontConnected() {
+	fmt.Printf(&quot;connected\n&quot;)
+}
+
+func main() {
+	api = ctp.CThostFtdcTraderApiCreateFtdcTraderApi()
+	//注册director类
+	api.RegisterSpi(ctp.GTrader(&amp;TradeApi{}))
+	api.RegisterFront(front)
+	api.Init()
+	api.Join()
+}
+</code></pre>
+
+    </div>
+    
+</div>
+
+            </div>
+            
+        </div>
+        
+<div class="footer">
+    
+    <p>Powered by <a href="https://getzola.org">Zola</a></p>
+    
+</div>
+
+    </div>
+    <script src="https://gaxxx.github.io/js/slim.js"></script>
+    <script src="https://gaxxx.github.io/js/elasticlunr.min.js"></script>
+    <script src="https://gaxxx.github.io/search_index.zh.js"></script>
+    <script src="https://gaxxx.github.io/js/lunr.stemmer.support.js"></script>
+    <script src="https://gaxxx.github.io/js/lunr.zh.js"></script>
+    <script src="https://gaxxx.github.io/js/search.js"></script>
+    
+</body>
+
+</html>

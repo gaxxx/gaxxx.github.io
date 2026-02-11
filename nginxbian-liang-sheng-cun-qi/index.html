@@ -5,9 +5,9 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
     <title>
-nginx变量生存期 &middot; siwu&#x27;s blog
+Nginx Variable Lifetime &middot; siwu&#x27;s blog
 </title>
-    <link rel="stylesheet" href="https://blog.gaxxx.me/slim.css">
+    <link rel="stylesheet" href="https://gaxxx.github.io/slim.css">
     
     
 </head>
@@ -16,7 +16,7 @@ nginx变量生存期 &middot; siwu&#x27;s blog
     <div class="container">
         
 <div class="header">
-    <h1 class="site-title"><a href="https:&#x2F;&#x2F;blog.gaxxx.me">siwu&#x27;s blog</a></h1>
+    <h1 class="site-title"><a href="https:&#x2F;&#x2F;gaxxx.github.io">siwu&#x27;s blog</a></h1>
     <input id="search" class=".next" type="search" placeholder="Search" />
     <p class="site-tagline"></p>
     <div class="nav">
@@ -26,7 +26,7 @@ nginx变量生存期 &middot; siwu&#x27;s blog
         <ul class="nav-list">
             
             
-            <li><a href="https:&#x2F;&#x2F;blog.gaxxx.me&#x2F;tags">Tags</a></li>
+            <li><a href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;tags">Tags</a></li>
             
             
             <li class="spacer">&ac;</li>
@@ -51,50 +51,63 @@ nginx变量生存期 &middot; siwu&#x27;s blog
 <div class="post">
     
     
-<h2 class="post-title"><a href="https:&#x2F;&#x2F;blog.gaxxx.me&#x2F;nginxbian-liang-sheng-cun-qi&#x2F;">nginx变量生存期</a></h2>
+<h2 class="post-title"><a href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;nginxbian-liang-sheng-cun-qi&#x2F;">Nginx Variable Lifetime</a></h2>
 <div class="post-header">
     <span class="post-date">August 05, 2014</span>
     
     <div class="post-tags">
         
-        <span class="post-tag">#<a href="https://blog.gaxxx.me/tags/nginx/">nginx</a></span>
+        <span class="post-tag">#<a href="https://gaxxx.github.io/tags/nginx/">nginx</a></span>
         
-        <span class="post-tag">#<a href="https://blog.gaxxx.me/tags/lua/">lua</a></span>
+        <span class="post-tag">#<a href="https://gaxxx.github.io/tags/lua/">lua</a></span>
         
-        <span class="post-tag">#<a href="https://blog.gaxxx.me/tags/cdn/">cdn</a></span>
+        <span class="post-tag">#<a href="https://gaxxx.github.io/tags/cdn/">cdn</a></span>
         
     </div>
     
 </div>
 
+    
+
+  
+    
+  
+    
+    <a class="lang-toggle" href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;zh&#x2F;nginxbian-liang-sheng-cun-qi&#x2F;">
+      中文
+    </a>
+    
+  
+
+
     <div class="post-content">
-        <p>在nginx中，变量有多种形式，一般来说，在同一个location里面，变量是一致的，但是经常出现的情况是，在从一个location转移到另外一个location的时候，变量会发生变化，有些变量会改变、有些变量会结束生存期。</p>
-<p>如果看看location跳转的类型和变量类型的组合，那么变量的生存期就变得非常的复杂和有趣...</p>
-<span id="continue-reading"></span><h2 id="cong-yi-ge-locationzhuan-yi-dao-ling-wai-yi-ge-locationyou-ru-xia-ji-chong-fang-fa">从一个location转移到另外一个location有如下几种方法：</h2>
+        <p>In nginx, variables come in multiple forms. Generally within the same location, variables are consistent. However, when transferring from one location to another, variables may change - some will be modified, others will end their lifetime.</p>
+<p>Considering the combinations of location jump types and variable types, variable lifetimes become quite complex and interesting...</p>
+<span id="continue-reading"></span><h2 id="methods-to-transfer-from-one-location-to-another">Methods to transfer from one location to another:</h2>
 <ul>
 <li>rewrite (rewrite_by_lua, rewrite_by_luafile)</li>
-<li>proxy_pass </li>
+<li>proxy_pass</li>
 </ul>
 <hr />
 <ul>
-<li>以下为ngx_openresty提供的模块</li>
+<li>The following are modules provided by ngx_openresty:</li>
 <li>ngx.exec</li>
 <li>ngx.location.capture</li>
 </ul>
-<h2 id="bian-liang-lei-xing">变量类型</h2>
+<h2 id="variable-types">Variable Types</h2>
 <ul>
-<li><a href="http://nginx.org/en/docs/http/ngx_http_core_module.html#variables">nginx core 变量</a></li>
-<li>在nginx配置文件里面自定义变量  set $foo 'bar'</li>
-<li>Headers相关</li>
+<li><a rel="external" href="http://nginx.org/en/docs/http/ngx_http_core_module.html#variables">nginx core variables</a></li>
+<li>Custom variables defined in nginx config: set $foo 'bar'</li>
+<li>Header-related variables</li>
 </ul>
-<h2 id="bian-hua-gui-lu">变化规律</h2>
+<h2 id="behavior-rules">Behavior Rules</h2>
 <table><thead><tr><th>location change</th><th>nginx core</th><th>custom</th><th>headers</th></tr></thead><tbody>
-<tr><td>rewrite</td><td>uri相关变量</td><td>不变或者被覆盖</td><td>不变</td></tr>
-<tr><td>proxy_pass</td><td>uri相关变化，args不变，$remote_addr变成 127.0.0.1</td><td>为空</td><td><a href="http://nginx.org/cn/docs/http/ngx_http_proxy_module.html#proxy_pass_header">proxy_pass</a>,自定义header不变</td></tr>
-<tr><td>ngx.exec</td><td>uri相关变量，args丢失</td><td>不变或者被覆盖</td><td>不变</td></tr>
-<tr><td>ngx.location.capture</td><td>uri相关变量，args丢失</td><td>为空</td><td>不变</td></tr>
+<tr><td>rewrite</td><td>URI-related variables change</td><td>unchanged or overwritten</td><td>unchanged</td></tr>
+<tr><td>proxy_pass</td><td>URI-related change, args unchanged, $remote_addr becomes 127.0.0.1</td><td>empty</td><td><a rel="external" href="http://nginx.org/cn/docs/http/ngx_http_proxy_module.html#proxy_pass_header">proxy_pass</a>, custom headers unchanged</td></tr>
+<tr><td>ngx.exec</td><td>URI-related variables, args lost</td><td>unchanged or overwritten</td><td>unchanged</td></tr>
+<tr><td>ngx.location.capture</td><td>URI-related variables, args lost</td><td>empty</td><td>unchanged</td></tr>
 </tbody></table>
-<p>参考：</p>
+<p>References:</p>
 <ul>
 <li>http://wiki.nginx.org/HttpLuaModule</li>
 <li>http://nginx.org/en/docs/http/ngx_http_core_module.html</li>
@@ -115,12 +128,12 @@ nginx变量生存期 &middot; siwu&#x27;s blog
 </div>
 
     </div>
-    <script src="https://blog.gaxxx.me/js/slim.js"></script>
-    <script src="https://blog.gaxxx.me/js/elasticlunr.min.js"></script>
-    <script src="https://blog.gaxxx.me/search_index.zh.js"></script>
-    <script src="https://blog.gaxxx.me/js/lunr.stemmer.support.js"></script>
-    <script src="https://blog.gaxxx.me/js/lunr.zh.js"></script>
-    <script src="https://blog.gaxxx.me/js/search.js"></script>
+    <script src="https://gaxxx.github.io/js/slim.js"></script>
+    <script src="https://gaxxx.github.io/js/elasticlunr.min.js"></script>
+    <script src="https://gaxxx.github.io/search_index.en.js"></script>
+    <script src="https://gaxxx.github.io/js/lunr.stemmer.support.js"></script>
+    <script src="https://gaxxx.github.io/js/lunr.en.js"></script>
+    <script src="https://gaxxx.github.io/js/search.js"></script>
     
 </body>
 

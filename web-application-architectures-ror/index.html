@@ -5,9 +5,9 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
     <title>
-Web Application Architectures(ROR) &middot; siwu&#x27;s blog
+Web Application Architectures (ROR) &middot; siwu&#x27;s blog
 </title>
-    <link rel="stylesheet" href="https://blog.gaxxx.me/slim.css">
+    <link rel="stylesheet" href="https://gaxxx.github.io/slim.css">
     
     
 </head>
@@ -16,7 +16,7 @@ Web Application Architectures(ROR) &middot; siwu&#x27;s blog
     <div class="container">
         
 <div class="header">
-    <h1 class="site-title"><a href="https:&#x2F;&#x2F;blog.gaxxx.me">siwu&#x27;s blog</a></h1>
+    <h1 class="site-title"><a href="https:&#x2F;&#x2F;gaxxx.github.io">siwu&#x27;s blog</a></h1>
     <input id="search" class=".next" type="search" placeholder="Search" />
     <p class="site-tagline"></p>
     <div class="nav">
@@ -26,7 +26,7 @@ Web Application Architectures(ROR) &middot; siwu&#x27;s blog
         <ul class="nav-list">
             
             
-            <li><a href="https:&#x2F;&#x2F;blog.gaxxx.me&#x2F;tags">Tags</a></li>
+            <li><a href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;tags">Tags</a></li>
             
             
             <li class="spacer">&ac;</li>
@@ -51,96 +51,107 @@ Web Application Architectures(ROR) &middot; siwu&#x27;s blog
 <div class="post">
     
     
-<h2 class="post-title"><a href="https:&#x2F;&#x2F;blog.gaxxx.me&#x2F;web-application-architectures-ror&#x2F;">Web Application Architectures(ROR)</a></h2>
+<h2 class="post-title"><a href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;web-application-architectures-ror&#x2F;">Web Application Architectures (ROR)</a></h2>
 <div class="post-header">
     <span class="post-date">August 23, 2014</span>
     
     <div class="post-tags">
         
-        <span class="post-tag">#<a href="https://blog.gaxxx.me/tags/ruby/">ruby</a></span>
+        <span class="post-tag">#<a href="https://gaxxx.github.io/tags/ruby/">ruby</a></span>
         
-        <span class="post-tag">#<a href="https://blog.gaxxx.me/tags/rails/">rails</a></span>
+        <span class="post-tag">#<a href="https://gaxxx.github.io/tags/rails/">rails</a></span>
         
-        <span class="post-tag">#<a href="https://blog.gaxxx.me/tags/ror/">ror</a></span>
+        <span class="post-tag">#<a href="https://gaxxx.github.io/tags/ror/">ror</a></span>
         
     </div>
     
 </div>
 
+    
+
+  
+    
+  
+    
+    <a class="lang-toggle" href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;zh&#x2F;web-application-architectures-ror&#x2F;">
+      中文
+    </a>
+    
+  
+
+
     <div class="post-content">
-        <p>最近学了一门<a href="https://class.coursera.org/webapplications-002">Web Application Architectures</a>,本来是打算借鉴一下其中的架构，然后用golang做一个简单CMS类应用实现的，但是学完发现，ROR用来开发的效率还不错，而且能自动生成不少代码。</p>
+        <p>Recently completed a course on <a rel="external" href="https://class.coursera.org/webapplications-002">Web Application Architectures</a>. I originally planned to borrow some architectural ideas and build a simple CMS application with Go, but after finishing the course, I found that ROR development efficiency is quite good and it auto-generates a lot of code.</p>
 <span id="continue-reading"></span>
-<p>即使相对于号称快捷开发的django,同样的任务，ROR的编码量还要更少一些,但有些人认为，django的架构，要更容易控制一些，参考很有意思的一篇blog, <a href="https://bernardopires.com/2014/03/rails-vs-django-an-in-depth-technical-comparison/">RAILS VS DJANGO: AN IN-DEPTH TECHNICAL COMPARISON</a>.</p>
-<h2 id="an-zhuang">安装</h2>
-<p>在Archlinux下，直接安装ruby</p>
+<p>Even compared to Django, which is known for rapid development, ROR requires less coding for the same tasks. However, some argue that Django's architecture is easier to control. See this interesting blog post: <a rel="external" href="https://bernardopires.com/2014/03/rails-vs-django-an-in-depth-technical-comparison/">RAILS VS DJANGO: AN IN-DEPTH TECHNICAL COMPARISON</a>.</p>
+<h2 id="installation">Installation</h2>
+<p>On Archlinux, install ruby directly:</p>
 <pre><code>root# pacman -S ruby
 root# gem install rails
 </code></pre>
-<p>在其他操作系统上，包括ubuntu，ruby的版本太老了....可以参考<a href="http://rvm.io/rvm/install">rvm</a>,可以在<a href="http://railscasts.com/episodes/310-getting-started-with-rails">railscast</a>上找到相关视频</p>
-<h2 id="chuang-jian-ying-yong">创建应用</h2>
-<p>安装完rails之后，可以直接创建应用了</p>
+<p>On other systems including Ubuntu, the Ruby version is too old... See <a rel="external" href="http://rvm.io/rvm/install">rvm</a> for installation. Related videos can be found on <a rel="external" href="http://railscasts.com/episodes/310-getting-started-with-rails">railscast</a>.</p>
+<h2 id="creating-an-application">Creating an Application</h2>
+<p>After installing Rails, you can create an application directly:</p>
 <pre><code>root# rails new blog
 </code></pre>
-<p>应用自动建立了相关目录，主要有</p>
+<p>The application automatically creates the directory structure:</p>
 <ul>
-<li>config 配置目录，主要有数据库的配置，router的配置</li>
-<li>db 数据库的shema</li>
-<li>public 404文件等</li>
-<li>app MVC相关的东西，其中
+<li>config - Configuration directory, mainly database and router config</li>
+<li>db - Database schema</li>
+<li>public - 404 files etc.</li>
+<li>app - MVC-related files:
 <ul>
-<li>assets js和css文件</li>
-<li>models (MVC 中的M)</li>
-<li>views (MVC 中的V)</li>
-<li>controller  (MVC中的C)</li>
+<li>assets - JS and CSS files</li>
+<li>models (M in MVC)</li>
+<li>views (V in MVC)</li>
+<li>controller (C in MVC)</li>
 </ul>
 </li>
 </ul>
-<h2 id="tian-jia-shu-ju-ku-zhi-chi">添加数据库支持</h2>
-<p>rails默认使用sqlite，也可以使用mysql,甚至mongodb,以mysql为例
-首先安装mysql以及相应的gem</p>
+<h2 id="adding-database-support">Adding Database Support</h2>
+<p>Rails uses SQLite by default but can also use MySQL or even MongoDB. Using MySQL as an example:</p>
 <ul>
-<li>安装mysql(以Archlinux为例)</li>
+<li>Install MySQL (Archlinux example):</li>
 </ul>
 <pre><code>root# pacman -S  mysql ; gem instamysql2
 </code></pre>
 <ul>
-<li>编辑config/database.yml  (注意看默认配置文件的 &lt;&lt;: *default 的代码复用)</li>
+<li>Edit config/database.yml (note the &lt;&lt;: *default code reuse in the default config):</li>
 </ul>
 <pre><code>development:
     adapter: mysql2
-    #使用的数据库
+    #database name
     database: db_name_dev
-    #mysql用户名
+    #mysql username
     username: woo
-    #mysql密码
+    #mysql password
     password: aabb
 </code></pre>
 <ul>
-<li>增加post和comment数据结构</li>
+<li>Add post and comment data structures:</li>
 </ul>
 <pre><code>root# rails generate scaffold post title:string body:text
 root# rails generate scaffold comment post_id:integer body:text
 root# rake db:migrate
 </code></pre>
-<p>这样就增加了post和comment的MVC以及相关的测试用例，更有趣的是，增加了post和comment的restful风格的界面
-同时可以通过rake routes查看目前支持的restful的url,同时可以启动ror(默认使用3000端口),以及访问http://127.0.0.1:3000/posts/ </p>
-<pre><code>root# rails s 
+<p>This creates the MVC and test cases for post and comment, and also generates RESTful-style interfaces. You can view supported RESTful URLs with rake routes, start the server (default port 3000), and visit http://127.0.0.1:3000/posts/</p>
+<pre><code>root# rails s
 </code></pre>
-<h2 id="xiu-gai-jie-mian-luo-ji">修改界面逻辑</h2>
+<h2 id="modifying-ui-logic">Modifying UI Logic</h2>
 <ul>
-<li>增加post与comment之间的关联，命令太多了，直接上<a href="https://asciinema.org">asciinema</a></li>
+<li>Add association between post and comment - too many commands, using <a rel="external" href="https://asciinema.org">asciinema</a> directly:</li>
 </ul>
 <script type="text/javascript" src="https://asciinema.org/a/11671.js" id="asciicast-11671" async></script>
 <ul>
-<li>修改相关的router和view，在post页面展现comments,继续上asciinema</li>
+<li>Modify router and view to show comments on post page:</li>
 </ul>
 <script type="text/javascript" src="https://asciinema.org/a/11672.js" id="asciicast-11672" async></script>
 <ul>
-<li>修改controller，每次提交comment之后重定向到post页面,修改comment的create函数</li>
+<li>Modify controller to redirect to post page after submitting a comment:</li>
 </ul>
 <script type="text/javascript" src="https://asciinema.org/a/11674.js" id="asciicast-11674" async></script>
-<h2 id="wan-zheng-de-shi-li">完整的示例</h2>
-<p>见<a href="https://bitbucket.org/gaxxx/blog_ror">Bitbucket</a></p>
+<h2 id="complete-example">Complete Example</h2>
+<p>See <a rel="external" href="https://bitbucket.org/gaxxx/blog_ror">Bitbucket</a></p>
 
     </div>
     
@@ -157,12 +168,12 @@ root# rake db:migrate
 </div>
 
     </div>
-    <script src="https://blog.gaxxx.me/js/slim.js"></script>
-    <script src="https://blog.gaxxx.me/js/elasticlunr.min.js"></script>
-    <script src="https://blog.gaxxx.me/search_index.zh.js"></script>
-    <script src="https://blog.gaxxx.me/js/lunr.stemmer.support.js"></script>
-    <script src="https://blog.gaxxx.me/js/lunr.zh.js"></script>
-    <script src="https://blog.gaxxx.me/js/search.js"></script>
+    <script src="https://gaxxx.github.io/js/slim.js"></script>
+    <script src="https://gaxxx.github.io/js/elasticlunr.min.js"></script>
+    <script src="https://gaxxx.github.io/search_index.en.js"></script>
+    <script src="https://gaxxx.github.io/js/lunr.stemmer.support.js"></script>
+    <script src="https://gaxxx.github.io/js/lunr.en.js"></script>
+    <script src="https://gaxxx.github.io/js/search.js"></script>
     
 </body>
 

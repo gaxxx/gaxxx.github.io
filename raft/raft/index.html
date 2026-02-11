@@ -5,9 +5,9 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
     <title>
-Raft 实现 &middot; siwu&#x27;s blog
+Raft Implementation &middot; siwu&#x27;s blog
 </title>
-    <link rel="stylesheet" href="https://blog.gaxxx.me/slim.css">
+    <link rel="stylesheet" href="https://gaxxx.github.io/slim.css">
     
     
 </head>
@@ -16,7 +16,7 @@ Raft 实现 &middot; siwu&#x27;s blog
     <div class="container">
         
 <div class="header">
-    <h1 class="site-title"><a href="https:&#x2F;&#x2F;blog.gaxxx.me">siwu&#x27;s blog</a></h1>
+    <h1 class="site-title"><a href="https:&#x2F;&#x2F;gaxxx.github.io">siwu&#x27;s blog</a></h1>
     <input id="search" class=".next" type="search" placeholder="Search" />
     <p class="site-tagline"></p>
     <div class="nav">
@@ -26,7 +26,7 @@ Raft 实现 &middot; siwu&#x27;s blog
         <ul class="nav-list">
             
             
-            <li><a href="https:&#x2F;&#x2F;blog.gaxxx.me&#x2F;tags">Tags</a></li>
+            <li><a href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;tags">Tags</a></li>
             
             
             <li class="spacer">&ac;</li>
@@ -51,58 +51,71 @@ Raft 实现 &middot; siwu&#x27;s blog
 <div class="post">
     
     
-<h2 class="post-title"><a href="https:&#x2F;&#x2F;blog.gaxxx.me&#x2F;raft&#x2F;raft&#x2F;">Raft 实现</a></h2>
+<h2 class="post-title"><a href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;raft&#x2F;raft&#x2F;">Raft Implementation</a></h2>
 <div class="post-header">
     <span class="post-date">November 10, 2021</span>
     
     <div class="post-tags">
         
-        <span class="post-tag">#<a href="https://blog.gaxxx.me/tags/raft/">raft</a></span>
+        <span class="post-tag">#<a href="https://gaxxx.github.io/tags/raft/">raft</a></span>
         
     </div>
     
 </div>
 
+    
+
+  
+    
+    <a class="lang-toggle" href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;zh&#x2F;raft&#x2F;raft&#x2F;">
+      中文
+    </a>
+    
+  
+    
+  
+
+
     <div class="post-content">
-        <p><a href="https://pdos.csail.mit.edu/6.824/labs/lab-raft.html">6.824 Lab 2: Raft (mit.edu)</a></p>
-<p><a href="https://pdos.csail.mit.edu/6.824/papers/raft-extended.pdf">In Search of an Understandable Consensus Algorithm (mit.edu)</a></p>
-<p><a href="https://pdos.csail.mit.edu/6.824/notes/raft_diagram.pdf">raft_diagram.pdf (mit.edu)</a></p>
-<p>在这里，我们需要实现raft的选举， log分发， 持久化等等，实现每一步的时候，实现每一步的时候，都可能会修改之前的代码，导致之前的测试失败，所以建议是每通过一个test，都commit一次代码。</p>
-<p>在开始实际编程之前，最好先看看要通过的test实现，在test_test.go里面，其中主要的检测函数有</p>
+        <p><a rel="external" href="https://pdos.csail.mit.edu/6.824/labs/lab-raft.html">6.824 Lab 2: Raft (mit.edu)</a></p>
+<p><a rel="external" href="https://pdos.csail.mit.edu/6.824/papers/raft-extended.pdf">In Search of an Understandable Consensus Algorithm (mit.edu)</a></p>
+<p><a rel="external" href="https://pdos.csail.mit.edu/6.824/notes/raft_diagram.pdf">raft_diagram.pdf (mit.edu)</a></p>
+<p>Here we implement Raft's election, log distribution, persistence, etc. Each step may require modifying previous code, causing earlier tests to fail. It's recommended to commit code after passing each test.</p>
+<p>Before starting to code, review the tests in test_test.go. The main check functions are:</p>
 <ul>
-<li>checkOneLeader 在所有的peers中，有且只有一个leader</li>
-<li>checkTerm 返回当前的term</li>
-<li>one 确认该command在日志中达成共识，在这之前command，会先进行分发，然后commit，最后apply。</li>
+<li>checkOneLeader - among all peers, there is exactly one leader</li>
+<li>checkTerm - returns the current term</li>
+<li>one - confirms that a command reaches consensus in the log. Before this, the command is distributed, committed, then applied.</li>
 </ul>
-<p>同时我们需有确定peer之间怎么建立通信</p>
+<p>We also need to decide how peers communicate:</p>
 <ol>
-<li>通过一个长链接，这样比较容易维护状态，可以保证在同一个链接中，message的顺序，但是问题在于如果有一个message处理满了，会影响其他的message</li>
-<li>通过短链， 这样写起来简单，但是需要处理消息顺序的问题，我们需要在消息中加上一些序号。碰到网络断开情况的时候，可能会建立特别多的短链接。</li>
-<li>通过连接池，也需要处理消息顺序，但是可以对不同的消息配置不同的并发度，但是复杂性较高。</li>
+<li>Long connections - easier to maintain state, can guarantee message order within a connection, but a slow message blocks others</li>
+<li>Short connections - simpler to write, but need to handle message ordering with sequence numbers. Network disconnections may create many connections.</li>
+<li>Connection pools - also need message ordering, but can configure different concurrency for different messages. Higher complexity.</li>
 </ol>
-<h2 id="mu-biao">目标</h2>
+<h2 id="goals">Goals</h2>
 <ul>
-<li>选举 (2A)</li>
-<li>数据分发 （2B）</li>
-<li>持久化 （2C）</li>
+<li>Election (2A)</li>
+<li>Log distribution (2B)</li>
+<li>Persistence (2C)</li>
 <li>Snapshot (2D)</li>
 </ul>
-<h2 id="xuan-ju-election">选举 (Election)</h2>
-<p>Election是peers选主的过程，当peer选主完成并变成leader之后，就由它向其他peer分发log数据。</p>
-<p>Raft的选举，其实跟现实挺像的，可以与干部选举对应起来</p>
+<h2 id="election">Election</h2>
+<p>Election is the process where peers elect a leader. After election, the leader distributes log data to other peers.</p>
+<p>Raft's election is actually quite similar to real life - it maps to student body elections:</p>
 <ul>
-<li>3个peer准备election ——- 3个同学开始竞选班干部</li>
-<li>最大的term才是有效的 ———- 我们要的是最新一届的结果</li>
-<li>获得大多数同意即可 ———- 需要拿到多数票</li>
-<li>同意的条件是candidate peer的log数量多 ———- 同意的条件是，参选人的经历（log）比你全.</li>
+<li>3 peers prepare for election --- 3 students start campaigning for class leader</li>
+<li>Only the highest term is valid --- we want the latest election results</li>
+<li>Majority agreement is sufficient --- need to get majority votes</li>
+<li>Agreement condition is that the candidate's log count is higher --- agreement condition is that the candidate's experience (log) is more complete than yours</li>
 </ul>
-<h3 id="xi-jie">细节</h3>
+<h3 id="details">Details</h3>
 <ul>
-<li>在Vote过程中term的处理</li>
-<li>Peer怎么投票</li>
+<li>Term handling during the vote process</li>
+<li>How peers vote</li>
 </ul>
-<h3 id="wei-dai-ma">伪代码</h3>
-<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python">&#x2F;&#x2F; 对于每一个Raft对象，我们需要定时检查状态， 并进行选举。
+<h3 id="pseudocode">Pseudocode</h3>
+<pre><code data-lang="python">// For each Raft object, we need to periodically check state and conduct elections.
 
 while not_killed:
 
@@ -110,7 +123,7 @@ while not_killed:
 
 		send_vote_request_to_all
 </code></pre>
-<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python">&#x2F;&#x2F; 同时我们需要处理其他peer的vote
+<pre><code data-lang="python">// We also need to handle other peers&#39; votes
 
 if has_more_logs:
 
@@ -118,35 +131,35 @@ if has_more_logs:
 
 return vote_fail
 </code></pre>
-<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python">&#x2F;&#x2F; 以及拿到的vote reply之后
+<pre><code data-lang="python">// After receiving vote replies
 
 save_vote_reply_for_this_peer
 
 check_if_being_leader_now
 </code></pre>
-<h3 id="raft-detail">细节处理</h3>
+<h3 id="raft-detail">Detail Handling</h3>
 <ol>
-<li>在发送和接受vote的时候，理想情况下在同一个term。但是实际上并不会，对于低term的忽略掉或者拒绝，对于高term的VoteRequest，可以先把自己的term调上来，清空自己当前的拿到的votes，然后处理。</li>
-<li>每个peer在本term不能同时投两个人。 （可以弃权，然后换一个，弃权的条件见3a)</li>
-<li>对于同一个term，每个peer的投票策略有挺多的，跟现实也挺像的
+<li>When sending and receiving votes, ideally in the same term. But in practice they won't be. Ignore or reject lower-term messages. For high-term VoteRequests, first raise your own term, clear your collected votes, then process.</li>
+<li>Each peer cannot vote for two candidates in the same term. (Can abstain and switch - see condition 3a)</li>
+<li>For the same term, each peer has multiple voting strategies, similar to real life:
 <ol>
-<li>参选的人，先投自己，然后去别人那边拉票。这里还有一个增强，在投票过程中，发现自己拿到的票，已经证明自己没法当选了，可以提前弃权，并开始投别人的票 </li>
-<li>先拉票，在最后阶段，投自己一票 (在我的机器上，这个策略要快10%左右）</li>
+<li>Candidates vote for themselves first, then campaign. Enhancement: during voting, if collected votes prove you can't win, abstain early and vote for others</li>
+<li>Campaign first, cast self-vote at the last stage (on my machine, this strategy is about 10% faster)</li>
 </ol>
 </li>
-<li>在candiate状态时，可以配置一个定时器来进行election， 如果正常的leader碰到了一个乱入的VoteRequest, 可以在回退到follower，并在下一个心跳，开始election。 对于其他的follower，在收到乱入的VoteRequest的时候，可以选择不处理，参考第2条。</li>
+<li>In candidate state, configure a timer for election. If a normal leader encounters a rogue VoteRequest, it can fall back to follower and start election in the next heartbeat. For other followers receiving rogue VoteRequests, they can choose not to process them (see point 2).</li>
 </ol>
-<h2 id="shu-ju-fen-fa">数据分发</h2>
-<p>当peer变成leader之后，就可以在当前的term，分发数据了。</p>
-<h3 id="xi-jie-1">细节</h3>
+<h2 id="log-distribution">Log Distribution</h2>
+<p>After a peer becomes leader, it can distribute data in the current term.</p>
+<h3 id="details-1">Details</h3>
 <ul>
-<li>什么时候存数据，拿到数据就存，还是批处理？</li>
-<li>如何快速的update_index，如何快速协商几次后，给其他peer最新的数据</li>
-<li>Raft的文档里面说了，只commit当前term的数据，但是如果最后一个数据是之前term的，并且没有新的数据过来。 那这个数据能不能commit</li>
-<li>数据commit之后，怎么apply</li>
+<li>When to persist data - immediately upon receipt or batch processing?</li>
+<li>How to quickly update_index, how to give peers the latest data after a few rounds of negotiation</li>
+<li>Raft's paper says only commit data from the current term, but what if the last data is from a previous term with no new data coming? Can it be committed?</li>
+<li>How to apply after data is committed</li>
 </ul>
-<h3 id="wei-dai-ma-1">伪代码</h3>
-<pre data-lang="bash" class="language-bash "><code class="language-bash" data-lang="bash">&#x2F;&#x2F; 开始接收数据
+<h3 id="pseudocode-1">Pseudocode</h3>
+<pre><code data-lang="bash">// Start receiving data
 
 while not_killed:
 
@@ -154,53 +167,53 @@ while not_killed:
 
 	send_to_peers
 </code></pre>
-<pre data-lang="bash" class="language-bash "><code class="language-bash" data-lang="bash">&#x2F;&#x2F; 接收peer的反馈
+<pre><code data-lang="bash">// Receive peer feedback
 
 update_log_indexes
 
 update_commit_info
 </code></pre>
-<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python">&#x2F;&#x2F; 在这个阶段，所有peer都要对数据进行apply了
+<pre><code data-lang="python">// At this stage, all peers need to apply data
 
 while not_killed:
 
 	get_last_applied_msg
-	
+
 	do_apply
 </code></pre>
-<h3 id="when-to-save">细节处理</h3>
+<h3 id="when-to-save">Detail Handling</h3>
 <ul>
 <li>
-<p>拿到数据就存，否则一次两次可能可以过，但是跑10次就会跪那么一两次的。但是存的时候，需要看是存raft logs,还是连着snapshot一起。需要注意的时候，因为存的时候需要序列化，所以后面kvraft的test在性能比较低的机器上，比如我的树莓派上，有些会跪掉。</p>
+<p>Persist immediately upon receipt, otherwise tests may pass once or twice but fail 1-2 times out of 10. When persisting, consider whether to store just raft logs or include snapshots. Note that serialization is needed during persistence, so kvraft tests on low-performance machines like my Raspberry Pi may fail.</p>
 </li>
 <li>
-<p>如何快速的update index, 得看返回AppendEntriesReply是否有conflict</p>
+<p>How to quickly update index - depends on whether AppendEntriesReply has a conflict:</p>
 <ul>
-<li>如果没有conflict
+<li>If no conflict:
 <ul>
-<li>更新该peer的最后一个item （log_index + term)</li>
-<li>搜集所有peer的最后一个item，如果是当前term，通过判断大多数达到的位置，update commit pos</li>
-<li>如果所有peer的最后一个item，都是一个旧的term，则取所有peer的index最小值， update commit pos</li>
+<li>Update the peer's last item (log_index + term)</li>
+<li>Collect all peers' last items. If in current term, determine majority position to update commit pos</li>
+<li>If all peers' last items are from an old term, take minimum index across all peers to update commit pos</li>
 </ul>
 </li>
-<li>如果有conflict （conflict_log_idx, conflict_log_term)
+<li>If conflict (conflict_log_idx, conflict_log_term):
 <ul>
-<li>如果conflict_log_term与当前conflict_log_idx的一致，可以配置next_match = conflict_log_idx  + 1</li>
-<li>如果不一致，next_match = conflict_log_idx, 或者可以配置成 next_match = conflict_log_idx - N (N 可以自己配置，比如当前的log数量的一半，或者是其他条件），也可以按照term的信息来配置，比如</li>
+<li>If conflict_log_term matches the current conflict_log_idx, set next_match = conflict_log_idx + 1</li>
+<li>If not matching, next_match = conflict_log_idx, or configure next_match = conflict_log_idx - N (N can be customized, e.g., half the current log count), or configure based on term info</li>
 </ul>
 </li>
 </ul>
 </li>
 <li>
-<p>数据commit之后，我们可以来进行apply，我最开始的做法是</p>
-<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python">for last_applied &lt; commited:
+<p>After data is committed, we can apply. My initial approach was:</p>
+<pre><code data-lang="python">for last_applied &lt; commited:
 
 	do_apply(logs[last_applied])
 
 	last_applied++
 </code></pre>
-<p>但是这样可能会有锁的问题，另外如果log里面有snapmsg， 可能log会发生截断，但是对于log本身来说，是不可变的，所以我个人倾向于下面这种，而且锁的粒度很好控制</p>
-<pre data-lang="go" class="language-go "><code class="language-go" data-lang="go">cmd, ok := get_to_apply(last_applied)
+<p>But this may have lock issues. Also, if the log contains snapshot messages, the log may be truncated. Since the log itself is immutable, I prefer the following approach with better lock granularity:</p>
+<pre><code data-lang="go">cmd, ok := get_to_apply(last_applied)
 
 do_apply(cmd)
 
@@ -208,81 +221,81 @@ last_appied = cmd.idx
 </code></pre>
 </li>
 </ul>
-<h2 id="chi-jiu-hua">持久化</h2>
-<p>在测试和实际产品环境中， raft的数据随时都可以失效，我们需要保证的是在任何时候， Snapshot + LogApply最终达到一致，所以需要存储的时候，包括LogState + SnapState. 但是在这个测试里面，没有Snap。我们只需要存所有的Log就可以了。</p>
-<h3 id="xi-jie-2">细节</h3>
+<h2 id="persistence">Persistence</h2>
+<p>In tests and production, raft data can become invalid at any time. We need to ensure that Snapshot + LogApply eventually reaches consistency, so storage must include LogState + SnapState. But in this test, there's no Snap. We only need to store all logs.</p>
+<h3 id="details-2">Details</h3>
 <ul>
-<li>存那些State，Raft的文档里面只有这些，还需要其他吗？</li>
+<li>What state to store? The Raft paper shows only these - do we need more?</li>
 </ul>
 <p><img src="/raft/raft_persist.png" alt="Untitled" /></p>
-<h3 id="wei-dai-ma-2">伪代码</h3>
-<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python">&#x2F;&#x2F; when killed
-saved_data = rf.Data.Encode() &#x2F;&#x2F; term, vote, log
+<h3 id="pseudocode-2">Pseudocode</h3>
+<pre><code data-lang="python">// when killed
+saved_data = rf.Data.Encode() // term, vote, log
 
-&#x2F;&#x2F; when restore
+// when restore
 rf.Data.Decode(saved_data)
 </code></pre>
-<h3 id="xi-jie-shi-xian">细节实现</h3>
+<h3 id="detail-implementation">Detail Implementation</h3>
 <ul>
-<li>存储的数据，如果Log不是从0开始的，还需要 EntryIdx, EntryTerm, SnapIdx, SnapTerm.</li>
+<li>If logs don't start from 0, also need EntryIdx, EntryTerm, SnapIdx, SnapTerm.</li>
 </ul>
 <h2 id="snapshot">Snapshot</h2>
-<p>Snapshot保证了，在Snapshot + (SnapIdx ... CommitIdx).apply() 的结果，和 （0 .. CommitIdx).apply() 的是一致的</p>
-<h3 id="xi-jie-3">细节</h3>
+<p>Snapshot ensures that Snapshot + (SnapIdx ... CommitIdx).apply() produces the same result as (0 .. CommitIdx).apply()</p>
+<h3 id="details-3">Details</h3>
 <ul>
-<li>Snapshot什么时候生成</li>
-<li>Snapshot什么时候发送</li>
-<li>收到了Snapshot怎么办</li>
+<li>When to generate snapshots</li>
+<li>When to send snapshots</li>
+<li>What to do when receiving a snapshot</li>
 </ul>
-<h3 id="wei-dai-ma-3">伪代码</h3>
-<pre data-lang="python" class="language-python "><code class="language-python" data-lang="python">&#x2F;&#x2F; 收到Snap请求,因为snap_data需要外部状态机提供
-persist(snap_data, snap_idx）
+<h3 id="pseudocode-3">Pseudocode</h3>
+<pre><code data-lang="python">// Receive Snap request - snap_data needs to be provided by external state machine
+persist(snap_data, snap_idx)
 clear_useless_logs()
 
-&#x2F;&#x2F; 发送heartbeat的是否，如果发现对方peer要的log，本地已经没有了
+// When sending heartbeat, if the peer&#39;s needed log no longer exists locally
 if log_not_exists:
 	send_snap_data()
 
-&#x2F;&#x2F; 关闭服务的时候
+// When shutting down
 persist(snap_data, raft_data)
 </code></pre>
-<h3 id="xi-jie-chu-li">细节处理</h3>
+<h3 id="detail-handling">Detail Handling</h3>
 <ul>
 <li>
-<p>Raft可以把自己的状态暴露出去，比如当前log的size， 这样外部随时都可以来做Snapshot。 做Snapshot的时候，外部会把它已经applied的idx和最新状态传进来。这样Raft服务需要存储的数据有：</p>
+<p>Raft can expose its state externally, e.g., current log size, so external systems can take snapshots at any time. When taking a snapshot, the external system passes in its applied idx and latest state. The Raft service then needs to store:</p>
 <ul>
 <li>SnapState, SnapIdx, SnapTerm (optional)</li>
 <li>Logs not applied</li>
 </ul>
-<p>存储的时候，不一定要把所有的applied log处理掉，可以保留一部分。</p>
+<p>You don't have to remove all applied logs - you can keep some.</p>
 </li>
 <li>
-<p>接上一条，如果把所有applied log处理掉了，那这些日志没有分发到其他的peer（少于1/2）的时候， 那我们就只能发送Snapshot了。</p>
+<p>Continuing from above, if all applied logs are removed but not distributed to other peers (less than 1/2), then we can only send snapshots.</p>
 </li>
 <li>
-<p>收到了Snapshot之后， 最好是先存储， 跟commit的逻辑是一样的。</p>
+<p>After receiving a snapshot, persist first - same logic as commit.</p>
 </li>
 </ul>
-<h2 id="avoid-lock">总结</h2>
-<p>这个项目是其他项目的基础， 其中有很多tech decision是在做后面的项目之后，慢慢总结出来的。 </p>
-<p>在与外部系统交互时， 这个模块与外面的通信应该保持最小的接口. </p>
+<h2 id="avoid-lock">Summary</h2>
+<p>This project is the foundation for others. Many tech decisions were gradually refined while working on subsequent projects.</p>
+<p>When interacting with external systems, this module should maintain minimal interfaces:</p>
 <ul>
 <li>Start / Kill</li>
 <li>Snapshot</li>
 <li>OnMessage</li>
 </ul>
-<p>如果外部信息希望更多的了解Raft的数据，可以通过传入控制型的command，比如说 RaftState{},</p>
-<p>然后Raft在把这个信息传给状态机之前，可以填充一些内部信息。最后得到Raft的内部状态</p>
+<p>If external systems want more Raft data, they can pass control commands like RaftState{}.</p>
+<p>Raft can fill in internal information before passing this to the state machine, producing:</p>
 <p>RaftState {</p>
 <pre><code> LogInfo:
 
  SnapInfo:
 
- TotalIdx: 
+ TotalIdx:
 </code></pre>
 <p>}</p>
-<p>同时，Raft也可以主动对外通信，发送一些状态变化，比如 BecomingALeader等等。。。</p>
-<p>通过这些方式，就可以避免各种死锁问题。</p>
+<p>Raft can also proactively communicate externally, sending state changes like BecomingALeader, etc.</p>
+<p>These approaches help avoid various deadlock issues.</p>
 <p><a href="/raft/">Back</a></p>
 
     </div>
@@ -300,12 +313,12 @@ persist(snap_data, raft_data)
 </div>
 
     </div>
-    <script src="https://blog.gaxxx.me/js/slim.js"></script>
-    <script src="https://blog.gaxxx.me/js/elasticlunr.min.js"></script>
-    <script src="https://blog.gaxxx.me/search_index.zh.js"></script>
-    <script src="https://blog.gaxxx.me/js/lunr.stemmer.support.js"></script>
-    <script src="https://blog.gaxxx.me/js/lunr.zh.js"></script>
-    <script src="https://blog.gaxxx.me/js/search.js"></script>
+    <script src="https://gaxxx.github.io/js/slim.js"></script>
+    <script src="https://gaxxx.github.io/js/elasticlunr.min.js"></script>
+    <script src="https://gaxxx.github.io/search_index.en.js"></script>
+    <script src="https://gaxxx.github.io/js/lunr.stemmer.support.js"></script>
+    <script src="https://gaxxx.github.io/js/lunr.en.js"></script>
+    <script src="https://gaxxx.github.io/js/search.js"></script>
     
 </body>
 
