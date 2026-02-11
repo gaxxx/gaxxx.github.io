@@ -1,14 +1,14 @@
 +++
-title = 'Raft 环境 - 准备'
+title = 'Raft Environment - Preparation'
 date = 2021-11-05
 +++
 
 
 [6.824 Go (mit.edu)](https://pdos.csail.mit.edu/6.824/labs/go.html)
 
-- 下载golang
-- 获取代码 `git clone git://g.csail.mit.edu/6.824-golabs-2021 6.824`
-- 不要将自己的代码实现贴到网上
+- Download Go
+- Get the code `git clone git://g.csail.mit.edu/6.824-golabs-2021 6.824`
+- Do not post your implementation code online
 
 ```bash
 sh-3.2$ cd 6.824/
@@ -20,6 +20,6 @@ Test (2A): initial election ...
 Test (2A): election after network failure ...
 ```
 
-这样就进入了烧脑的第一步
+This gets you into the brain-burning first step.
 
 [Back](/raft/)

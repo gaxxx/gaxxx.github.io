@@ -1,41 +1,41 @@
 +++
-title = "Android下引入rust库"
+title = "Integrating Rust Libraries in Android"
 date = 2021-11-22
 [taxonomies]
 tags = ["rust", "Android"]
 
 +++
 
-本文介绍了如何在Android项目中，引入rust lib.
+This article introduces how to integrate a Rust library into an Android project.
 
 <!-- more -->
 
-## 背景
-最近在看Android下面的高性能kv store, 突然想到的这个idea，找个高性能的rust kvstore集成到Android项目，然后通过jni调用, 不就完了吗. 然后就一脚踩到坑里面了. 
+## Background
+Recently while looking at high-performance KV stores for Android, I had an idea: find a high-performance Rust KV store, integrate it into an Android project, and call it via JNI. Simple, right? Then I stepped right into a pit.
 
-[代码在这里](https://github.com/gaxxx/KotlinRustProto)
+[Code is here](https://github.com/gaxxx/KotlinRustProto)
 
-Jni是一个非常成熟的机制了，通过rust导出C函数也是非常可靠的，所以在实现上是非常简单的，可以考虑的问题有
+JNI is a very mature mechanism, and exporting C functions from Rust is very reliable, so the implementation is straightforward. The questions to consider are:
 
-1. 如何方便的增加新的接口
-2. 如何log native code的错误
-3. 如何进行性能优化
+1. How to conveniently add new interfaces
+2. How to log native code errors
+3. How to optimize performance
 
 
-## 实现
+## Implementation
 
-1. 完成一个简单的jni调用
-2. 增加proto支持 
-3. 更好的封装protobuf
-4. 集成一个lmdb
-5. tunning
+1. Complete a simple JNI call
+2. Add protobuf support
+3. Better protobuf encapsulation
+4. Integrate LMDB
+5. Tuning
 6. MMKV
 
 
-### 实现一个简单的jni调用
+### Implementing a Simple JNI Call
 
-* 在Kotin里面定义两个函数，一个返回值，一个传入callback
-这些函数加载的lib文件是 librsdroid.so
+* Define two functions in Kotlin - one returns a value, one takes a callback.
+These functions load the lib file librsdroid.so
 ```
 package com.linkedin.android.rsdroid;
 
@@ -54,10 +54,10 @@ class RustCore {
 }
 
 ```
-* 在rust文件里面实现对应的功能
+* Implement the corresponding functions in Rust:
 ```
 #[no_mangle]
-// 注意函数的名字需要与Kotin类对应
+// Note: function names must correspond to the Kotlin class
 pub unsafe extern fn Java_com_linkedin_android_rsdroid_RustCore_greeting(env: JNIEnv, _: JClass) -> jstring {
     let world_ptr = CString::new("Hello world from Rust world").unwrap();
     let output = env.new_string(world_ptr.to_str().unwrap()).expect("Couldn't create java string!");
@@ -76,13 +76,12 @@ pub unsafe extern fn Java_com_linkedin_android_rsdroid_RustCore_callback(
 
 ```
 
-其中比较重要的是rust里面函数的签名，需要跟Kotlin类保持一致,同时在rust里面调用kotin的回调的时候，要看看对应的函数签名 (
-通过kotlinc RustCore.kt 看看生成的.class文件就可以了,把^A^C啥的去掉就可以了)
+The important thing is that Rust function signatures must match the Kotlin class. When calling Kotlin callbacks from Rust, check the corresponding function signatures (compile with kotlinc RustCore.kt and check the .class file, removing the ^A^C etc.)
 ```
  onSuccess^A^@^C()V^A^@^QL
 ```
 
-* 将rust编译成librsdroid.so, 放到Kotlin工程里面, 比较麻烦的办法是先编译ndk的toolchain，然后用toolchain编译对应的arm， arm64, x86的librsdroid.so， 然后放到Android工程里面。 现在有更简单的办法, 插件 [org.mozilla.rust-android-gradle.rust-android](https://github.com/mozilla/rust-android-gradle)
+* Compile Rust into librsdroid.so and add it to the Kotlin project. The cumbersome way is to first compile NDK toolchains, then compile arm, arm64, x86 versions of librsdroid.so, and place them in the Android project. There's now a simpler way with the plugin [org.mozilla.rust-android-gradle.rust-android](https://github.com/mozilla/rust-android-gradle)
 
 ```
 android {
@@ -104,18 +103,18 @@ cargo {
 }
 ```
 
-以上就完成了jni的调用，非常的直接，但是现在的方案也有一些问题
-* 只能传int， Sting等类型
-* 需要写对函数的参数，回调之类,否则可能就会crash
+This completes the JNI call - very straightforward. But the current approach has issues:
+* Can only pass int, String, and similar types
+* Must get function parameters and callbacks right, or it may crash
 
-通过一个固定的protocol，我们可以方便的解决这些问题，protobuf是一个相对合适的方案
+Using a fixed protocol, we can conveniently solve these issues. Protobuf is a suitable solution.
 
 
-### 在项目中引入protobuf 
+### Adding Protobuf to the Project
 
-protobuf 也是非常成熟的项目了，给定一个proto文件，在rust和java端都可以生成合适的代码，但是怎么让他们一起work是一个问题。
+Protobuf is also a very mature project. Given a proto file, both Rust and Java can generate appropriate code, but making them work together is the challenge.
 
-首先写一个proto文件，定义一个rpc服务
+First write a proto file defining an RPC service:
 ```
 syntax = "proto3";
 
@@ -139,9 +138,9 @@ message HelloOut{
 message Empty {}
 ```
 
-* 在rust中增加proto支持
-通过引入  [prost](https://github.com/tokio-rs/prost) 生成对应的模版trait: DroidBackendService
-这样我们保证数据的输入输出都是[]byte, 然后将方法都封装在run_command_bytes2_inner_ad里面
+* Add protobuf support in Rust.
+By importing [prost](https://github.com/tokio-rs/prost), generate the template trait: DroidBackendService.
+This ensures input/output is all []byte, with methods encapsulated in run_command_bytes2_inner_ad:
 
 ```
 use prost::Message;
@@ -171,7 +170,7 @@ pub trait DroidBackendService {
 }
 ```
 
-然后我们可以定义具体的服务实现trait
+Then define the concrete service implementation:
 
 ```
 pub struct Backend {
@@ -197,7 +196,7 @@ impl DroidBackendService for Backend {
 }
 ```
 
-最后，这个服务导出成一个函数
+Finally, export the service as a single function:
 
 ```
 #[no_mangle]
@@ -236,12 +235,12 @@ pub unsafe extern fn Java_com_linkedin_android_rsdroid_RustCore_run(
 }
 ```
 
-这样在java里面就可以通过传入protobuf数据，来获得protobuf回调了
-在java里面生成对应的类，需要用到 [protobuf-gradle-plugin](https://github.com/google/protobuf-gradle-plugin)
+Now Java can pass protobuf data and receive protobuf callbacks.
+To generate corresponding Java classes, use [protobuf-gradle-plugin](https://github.com/google/protobuf-gradle-plugin):
 ```
 def droidProtobufFolder = new File(rootDir, "rslib-bridge/proto").getAbsolutePath()
 
-## 配置proto文件路径
+## Configure proto file path
 android {
     sourceSets {
         main {
@@ -253,7 +252,7 @@ android {
 }
 
 
-## 生成java类
+## Generate Java classes
 protobuf {
     plugins {
         javalite {
@@ -277,7 +276,7 @@ protobuf {
 }
 
 ```
-这样我们就能在代码里面调用了
+Now we can call it in code:
 ```
 val builder = AdBackend.HelloIn.newBuilder();
 val arg = builder.setArg(1000).build();
@@ -293,23 +292,23 @@ RustCore.instance.run(1, arg.toByteArray(), object : ProtoCallback {
 });
 ```
 
-这样，我们就完成了Koltin 和 rust的交互，但是还有后一个问题，为什么要传cmd_number, 能不能让java和rust一样，把method number封装起来。
+This completes the Kotlin and Rust interaction. But there's still one question: why pass cmd_number? Can't we encapsulate the method number like in Java and Rust?
 
 
-###  更好的封装protobuf
+### Better Protobuf Encapsulation
 
-好消息，我们可以通过自定义的protobuf插件，调整生成的java类
+Good news - we can adjust generated Java classes through a custom protobuf plugin:
 
 ```
 protobuf {
-    // python脚本的地址
+    // Python script path
     String protocGenPath = OperatingSystem.current().isWindows() ? 'tools\\protoc-gen\\protoc-gen.bat' : 'tools/protoc-gen/protoc-gen.sh'
     File f = new File(project.rootDir, protocGenPath)
     if (!f.exists()) {
         throw new IllegalStateException("'${f.absolutePath}' does not exist")
     }
 
-    //  自定义的plugin
+    //  Custom plugin
     plugins {
         // Define a plugin with name 'anki'.
         native_rpc { path = f.absolutePath }
@@ -318,7 +317,7 @@ protobuf {
     // this is a task which wil generate classes for our proto files
     generateProtoTasks {
         all().each { task ->
-            // 执行plugin对proto文件进行解析
+            // Execute plugin to parse proto files
             task.plugins {
                 native_rpc {}
             }
@@ -326,7 +325,7 @@ protobuf {
     }
 ```
 
-然后通过自定义的python文件，我们可以自动生成cmd。
+Then through a custom Python script, we can auto-generate commands:
 ```
 package com.linkedin.android.rpc;
 
@@ -345,20 +344,20 @@ public @interface NativeMethods {
 
 ```
 
-这样我们可以用cmd来调用 
+Now we can call using cmd:
 ```
 RustCore.instance.run(NativeMethods.SINK, Native.Empty.getDefaultInstance().toByteArray(), null);
 
 ```
 
-也可以封装得更彻底一点,生成如下的代码
+Or encapsulate it more thoroughly, generating code like:
 ```
 
 public abstract class NativeImpl {
 
 protected abstract void executeCommand(final int command, byte[] args, RustCore.ProtoCallback cb);
 
-// 自动生成测代码
+// Auto-generated code
 public void hello(Native.HelloIn args, RustCore.Callback<Native.HelloOut> cb) {
     byte[] result = null;
     executeCommand(1, args.toByteArray(), new RustCore.ProtoCallback() {
@@ -381,7 +380,7 @@ public void hello(Native.HelloIn args, RustCore.Callback<Native.HelloOut> cb) {
 }
 
 ```
-然后外面用一个helper包装一下
+Then wrap it with a helper:
 ```
  public abstract class NativeImpl
  inner class NativeHelp : NativeImpl() {
@@ -391,7 +390,7 @@ public void hello(Native.HelloIn args, RustCore.Callback<Native.HelloOut> cb) {
     }
 ```
 
-就可以很方便(并不是）的调用了
+And call it conveniently (sort of):
 ```
 RustCore.navHelper.hello(
             Native.HelloIn.newBuilder()
@@ -407,16 +406,16 @@ RustCore.navHelper.hello(
         });
 ```
 
-但是这样也存在一些问题
-1. cmd_number是固定的
-2. 没有办法实现zerocopy
-3. 对于mutliple proto 文件的支持，需要改java插件和rust自定义build
+But this approach has some issues:
+1. cmd_number is fixed
+2. No way to implement zerocopy
+3. Support for multiple proto files requires modifying both Java plugin and Rust custom build
 
-这些都可以慢慢优化，但是我们可以开始测试一下集成lmdb了...
+These can be optimized gradually, but we can start testing LMDB integration...
 
-### 集成lmdb
+### Integrating LMDB
 
-集成kvstore，对于java来说完全是透明的，所以我同时集成了lmdb 和 sled, 只需要实现 DroidBackendService 的trait就可以了
+Integrating a KV store is completely transparent to Java, so I integrated both LMDB and Sled simultaneously. Just implement the DroidBackendService trait:
 
 ```
 fn open(&self, input: Str) -> BackendResult<Resp> {
@@ -437,7 +436,7 @@ fn open(&self, input: Str) -> BackendResult<Resp> {
 ```
 
 
-这里面需要注意的问题是，所有的save和get操作，需要在open之后进行，但是rust又有一些该死的可变不可变的检查，所以我用了一些锁来保证store的正常初始化，然后利用 unsafe 来修改static. 
+Note that all save and get operations must happen after open, but Rust has those pesky mutability checks. So I used locks to ensure proper store initialization, then used unsafe to modify statics.
 
 ```
 use once_cell::sync::Lazy;
@@ -461,7 +460,7 @@ pub fn open(path : &Path) {
 }
 
 ```
-编译很不顺利，跑起来也很不顺利。。。因为在rust打印堆栈信息，所以我又引入了 android_log输出日志到logcat
+Compilation was rough, running it was rough too... Since I was printing stack traces in Rust, I also introduced android_log to output logs to logcat:
 
 ```
 # Cargo.toml
@@ -491,24 +490,24 @@ let result = catch_unwind(AssertUnwindSafe(|| {
 
 ```
 
-这样在logcat里面，我发现是文件路径不对，修改完成之后，就可以正常工作了。
+In logcat, I found the file path was wrong. After fixing it, everything worked.
 
-但是，一顿操作猛如虎，结果发现，引入了rust之后，性能还不如SharedPrefrence...
+But after all that effort, introducing Rust actually performed worse than SharedPreferences...
 
-拉垮，超出我的想象
+Disappointing, beyond my imagination.
 
-| 接口 | 1000次用时|
-|-----|-----------| 
-| SharedPrefrence.set(String, String)  | 410ms |
-| SharedPrefrence.get(String) | 16ms |
+| Interface | Time for 1000 calls |
+|-----|-----------|
+| SharedPreference.set(String, String)  | 410ms |
+| SharedPreference.get(String) | 16ms |
 | Native.Sled.set(String, String) | 900ms |
-| Native.Sled.get(String) : String | 800ms | 
+| Native.Sled.get(String) : String | 800ms |
 
 
 
-### tunning
+### Tuning
 
-本来以为是一个结束，没想到工作才刚刚开始，我又试了一下空接口
+Thought it was the end, but work had just begun. I tried an empty interface:
 
 
 ```
@@ -518,29 +517,29 @@ pub unsafe extern fn Java_com_linkedin_android_rsdroid_RustCore_empty(env: JNIEn
 
 ```
 
-| 接口 | 1000次用时|
+| Interface | Time for 1000 calls |
 |-------|---------|
-| Native.empty | 1ms | 
+| Native.empty | 1ms |
 
-所以问题出现在参数传递上,对于简单的读取和返回String, 就挺耗时的了
+So the problem is in parameter passing. Even simple String read/write is quite expensive:
 
-| 接口 | 1000次用时|
+| Interface | Time for 1000 calls |
 |-------|---------|
-| Native.testStringGet() : String |  129ms  | 
+| Native.testStringGet() : String |  129ms  |
 | Native.testStringSet(String) | 28ms |
 
-根据[jni优化](https://developer.android.com/training/articles/perf-jni)的方法，可以选择方向有
+Following [JNI optimization](https://developer.android.com/training/articles/perf-jni) methods, the options are:
 
-1. 直接传入指针 (GetByteArrayElements)
+1. Pass pointers directly (GetByteArrayElements)
 
-通过get_byte_array_elements获取数据
+Get data via get_byte_array_elements:
 ```
 pub unsafe extern fn Java_com_linkedin_android_rsdroid_RustCore_testByte(env: JNIEnv, _: JClass, input : jbyteArray) {
     let input = env.get_byte_array_elements(input, ReleaseMode::NoCopyBack).unwrap();
 }
 ```
 
-通过 set_byte_array_region 写入数据
+Write data via set_byte_array_region:
 
 ```
 pub unsafe extern fn Java_com_linkedin_android_rsdroid_RustCore_testByte(env: JNIEnv, _: JClass,  output: jbyteArray) {
@@ -548,63 +547,63 @@ pub unsafe extern fn Java_com_linkedin_android_rsdroid_RustCore_testByte(env: JN
 }
 ```
 
-看上去也没有什么变化
+Doesn't seem to change much:
 
-| 接口 | 1000次用时|
+| Interface | Time for 1000 calls |
 |-------|---------|
-| Native.testByteArray(ByteArray) 空接口 |  2ms  | 
-| Native.testByteArray(ByteArray) |  100ms  | 
-| Native.getByteArray(output : ByteArray) |  170ms  | 
+| Native.testByteArray(ByteArray) empty |  2ms  |
+| Native.testByteArray(ByteArray) |  100ms  |
+| Native.getByteArray(output : ByteArray) |  170ms  |
 
 
-2. 传入字节缓冲区 (ByteBuffer)
+2. Pass byte buffers (ByteBuffer)
 
-通过 get_direct_buffer_address 直接获取参数地址,但是也并没有改善
+Get parameter address directly via get_direct_buffer_address, but also no improvement:
 
-| 接口 | 1000次用时|
+| Interface | Time for 1000 calls |
 |-------|---------|
-| Native.testByteArray(ByteBuffer) 空接口 |  0ms  | 
-| Native.testByteArray(ByteBuffer) |  100ms  | 
-| Native.getByteArray(output : ByteBuffer) |  200ms | 
+| Native.testByteArray(ByteBuffer) empty |  0ms  |
+| Native.testByteArray(ByteBuffer) |  100ms  |
+| Native.getByteArray(output : ByteBuffer) |  200ms |
 
-所以，看上去，只要是在native里面读写了java的数据，那就是100ms起...
+So it seems any native read/write of Java data starts at 100ms...
 
-这个时候头都要秃了, 我就准备默默的把这个库删掉了，然后我就用真机测试了一下,结果居然还不错。。。
+At this point I was about to go bald and was ready to quietly delete this library. Then I tested on a real device, and the results were actually decent...
 
 {{ resize_image(path='perf.png', width=600, height= 320, op = "fill")}}
 
-更新
+Updates:
 
-* 我发现可以在rust直接拿到入参的指针，这样能更快的解析protobuf.
-* 通过类似的方式，甚至可以在java实现类似mutliple return value的效果
-* 通过为了防止rust lib 和 java lib不同步，增加了signature校验
+* I found I can get input parameter pointers directly in Rust, enabling faster protobuf parsing.
+* Using a similar approach, you can even achieve something like multiple return values in Java.
+* Added signature verification to prevent Rust lib and Java lib from being out of sync.
 
-1. rust的稳定性不错，没崩, 就是编译有点费头发
-2. Sled 是挺顶的，比内存就差一点，如果加个java 缓存，说不定就起飞了. 但是还不太能用在产品系统，因为
-  * 不支持multi proccess
-  * Sled写文件是定时,默认是200ms，可能丢一点点数据...
-3. Lmdb 还可以，但是没有想象中的好, 能用.
-4. 对于小的kv存取，jni的开销可能还是稍微大了一下，但是用在网络上面，应该会有更好的表现。
-5. 有了protobuf，rust就可以跟其他语言联调了，所以下一次我可能要搞搞flutter
+1. Rust stability is solid - no crashes, just compilation costs some hair
+2. Sled is pretty strong - just slightly slower than memory. With a Java cache, it might fly. But not ready for production because:
+  * Doesn't support multi-process
+  * Sled writes to disk periodically (default 200ms), may lose tiny amounts of data...
+3. LMDB is decent but not as good as imagined. Usable.
+4. For small KV operations, JNI overhead may be slightly too high, but for networking, it should perform better.
+5. With protobuf, Rust can interact with other languages, so next time I might try Flutter.
 
 
 ### MMKV
-本来以为可以收尾了，手贱集成了MMKV，然后脸被打肿了, [MMKV](https://github.com/Tencent/MMKV) 的速度，基本上java map差不多了，然后看了一下他们的源码，感觉没用什么黑科技啊，然后，我就发现
+Thought I was done, but impulsively integrated MMKV. Got humbled. [MMKV](https://github.com/Tencent/MMKV)'s speed is basically on par with Java Map. After looking at their source code, I didn't see any black magic, then I discovered:
 
-1. log耗时大概100ms
-2. protobuf encoding / decoding 大概100ms
+1. Logging costs about 100ms
+2. Protobuf encoding/decoding costs about 100ms
 
-这样算起来， sled 跟 MMKV也差不了多少了，就酱.
-
-
+So Sled and MMKV aren't that far apart after all. That's it.
 
 
 
-参考文档：
+
+
+References:
 
 [Anki Android](https://github.com/ankidroid/Anki-Android)
 
-[JNI tips | Android NDK | Android Developers](https://developer.android.com/training/articles/perf-jni)
+[JNI tips | Android NDK | Android Developers](https://developer.android.com/training/articles/perf-jni)
 
 [How to Idiomatically Use Global Variables in Rust - SitePoint](https://www.sitepoint.com/rust-global-variables/#externallibraries)
 
@@ -615,9 +614,3 @@ pub unsafe extern fn Java_com_linkedin_android_rsdroid_RustCore_testByte(env: JN
 [jni - Rust (docs.rs)](https://docs.rs/jni/0.19.0/jni/index.html)
 
 [Best practices for using the Java Native Interface](https://developer.ibm.com/articles/j-jni/)
-
-
-
-
-
-

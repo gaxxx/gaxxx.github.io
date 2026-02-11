@@ -1,36 +1,35 @@
 +++
-title = "用rust写crud"
+title = "Building CRUD with Rust"
 date = 2020-07-09
 [taxonomies]
 tags = ["rust", "crud"]
 +++
 
-这是rust系列的第一篇
+This is the first article in the Rust series.
 
-虽然rust以其高性能著称，但是写简单crud的时候，我们还是喜欢用spring boot或者golang，
-但是要用rust写，也不是不可以
+While Rust is known for its high performance, for simple CRUD we usually prefer Spring Boot or Go. But it's not impossible with Rust either.
 
-具体代码在:
+Code available at:
 https://github.com/gaxxx/rust-crud
 
 
 <!-- more -->
 
-## 依赖
+## Dependencies
 * postgresql
 * rust
 * vscode
 
-## 初始化 (git checkout step0)
+## Initialization (git checkout step0)
 
-* 创建初始化项目
+* Create initial project
 1. cargo new hero-api
-2. 在cargo.toml添加dependencies
+2. Add dependencies to cargo.toml
 ```
 actix-web="2.0.0"
 actix-rt = "1.0"
 ```
-3. 试试初始化文件
+3. Try the initial file
 ```
 use actix_web::{web, App, Responder, HttpServer, get};
 
@@ -54,16 +53,16 @@ async fn main() -> std::io::Result<()> {
         .await
 }
 ```
-4. 创建一个api.http,添加测试, 安装rest client插件
+4. Create an api.http file, add tests, install REST Client plugin
 ```
 GET http://127.0.0.1:8088/hello/test
 ```
 
 
-## 增加json支持 (git checkout json)
+## Add JSON Support (git checkout json)
 
-1. 在cargo.toml中添加serde
-2. 定义一个结构,通过derive可以序列化和反序列化
+1. Add serde to cargo.toml
+2. Define a struct - serialization and deserialization via derive:
 ```
 #[derive(Deserialize, Debug, Clone)]
 struct Info {
@@ -77,43 +76,43 @@ async fn hello(user : web::Path<Info> ) -> impl Responder {
 ```
 
 
-## 增加数据库支持 (git checkout db)
-1. 添加diesel,在Cargo.toml里添加
+## Add Database Support (git checkout db)
+1. Add diesel to Cargo.toml:
 ```
 diesel = { version = "1.0.0", features = ["postgres"] }
 dotenv = "0.9.0"
 r2d2-diesel = "1.0.0"
 ```
-2. 安装diesel客户端
+2. Install diesel CLI:
 
 ```
 cargo install diesel_cli --no-default-features --features postgres
 ```
-3. 配置postgresql
+3. Configure PostgreSQL:
 ```
-# 创建数据库
+# Create database
 sudo -u postgres psql
 ALTER USER postgres PASSWORD 'password';
 create database heroes;
 
-# 将连接串写入.env文件
+# Write connection string to .env file
 echo DATABASE_URL=postgres://postgres:password@127.0.0.1/heroes > .env
 
 
-# 生成数据库表
-disel setup 
-// generage module tables
+# Generate database tables
+disel setup
+// generate module tables
 diesel migration generate heroes
 
 
-# 如果失败需要在pg_hba.conf里面添加
+# If it fails, add to pg_hba.conf:
 host    all             all             127.0.0.1/32            md5
 
-# 配置对应的数据库表，具体参考rust-crud的配置
-# 生成diesel schema
+# Configure the database table, see rust-crud for details
+# Generate diesel schema
 diesel migration run
 
-# 文件内容如下，diesel为这个结构生成了很多宏
+# File contents - diesel generates many macros for this structure
 
 table! {
     users (id) {
@@ -127,11 +126,11 @@ table! {
 
 ```
 
-5. 增加DB
+5. Add DB:
 ```
 
 
-# 从request拿到db
+# Get DB from request
 impl FromRequest for DB {
     type Error = ();
     type Future = LocalBoxFuture<'static, Result<Self, Self::Error>>;
@@ -143,19 +142,19 @@ impl FromRequest for DB {
     }
 }
 
-# 增加连接池
+# Add connection pool
 pub type Pool = r2d2::Pool<ConnectionManager<PgConnection>>;
 #[derive(Clone)]
 pub struct DB(pub Pool);
 ```
 
-6. 在路由层添加db
+6. Add DB to the router layer:
 ```
-# App对象加上db
+# Add DB to App
 App::new()
             .app_data(db::DB::default())
 
-# 具体handler里面因为实现了FromRequest,可以直接拿到db
+# In handlers, DB is available directly since FromRequest is implemented
 #[post("/")]
 async fn create(hero: web::Json<hero::HeroInput>, db: db::DB) -> impl Responder {
     let created : hero::Hero = diesel::insert_into(schema::users::table)
@@ -166,10 +165,10 @@ async fn create(hero: web::Json<hero::HeroInput>, db: db::DB) -> impl Responder 
 }
 ```
 
-7. diesel对CRUD都提供了相应的支持
+7. Diesel provides support for all CRUD operations:
 
 ```
-// create 
+// create
 diesel::insert_into(schema::users::table)
         .values(hero.into_inner())
 // read
@@ -186,20 +185,20 @@ diesel::delete(users.filter(id.eq(update_id.into_inner())))
 users.load::<hero::Hero>(&*db.get()).unwrap();
 ```
 
-## 提供分页支持 (git checkout master)
+## Add Pagination Support (git checkout master)
 
 ```
-# 定义一个分页的trait
+# Define a pagination trait
 pub trait Paginate: Sized {
     fn paginate(self, start: i64) -> Paginated<Self>;
 }
 
-# 扩展查询结果，从返回一行数据，到返回一个（数据， 总数量)的tuple
+# Extend query results from returning a single row to returning a (data, total_count) tuple
 impl<T: Query> Query for Paginated<T> {
     type SqlType = (T::SqlType, BigInt);
 }
 
-# 实现query
+# Implement query
 
 impl<T> QueryFragment<Pg> for Paginated<T>
     where
@@ -217,7 +216,7 @@ impl<T> QueryFragment<Pg> for Paginated<T>
     }
 }
 
-# 在函数处理里面这样使用
+# Usage in the handler
 #[get("/")]
 async fn gets(req : web::Query<PageRequest> ,db : db::DB) -> impl Responder {
     use schema::users::dsl::*;
@@ -230,20 +229,12 @@ async fn gets(req : web::Query<PageRequest> ,db : db::DB) -> impl Responder {
 ```
 
 
-## 感想
+## Thoughts
 
-1. diesel跟其他的orm不太一样，底层通过宏来实现的，对于各种query也比较完备
-2. 性能没啥说的，就是干
-3. 想起了刚开始撸golang的时候，那时候beego也刚出来,比特币还特别便宜...
+1. Diesel is different from other ORMs - it's implemented through macros at the bottom level, with fairly complete support for various queries
+2. Performance-wise, it just delivers
+3. Reminds me of when I first started with Go, when beego had just come out and Bitcoin was still super cheap...
 
 
-## 参考
+## References
 https://medium.com/sean3z/building-a-restful-crud-api-with-rust-1867308352d8
-
-
-
-
-
-
-
-

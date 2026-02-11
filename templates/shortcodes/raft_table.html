@@ -8,7 +8,8 @@
 </tr>
 <tr>
   {% for td in assets %}
-  {% set asset = page.path ~ td %}
+  {% set base_path = page.path | replace(from="/zh/", to="/") %}
+  {% set asset = base_path ~ td %}
   {% set image = resize_image(path=asset, width=300, height=600, ) %}
   <td><a href="{{get_url(path=asset)}}" target="_blank"><img src="{{ image.url }}" alt="{{get_url(path=asset)}}" /></a></td>
   {% endfor %}

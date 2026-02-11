@@ -2,7 +2,7 @@
 title = 'Setup Go for Android'
 date = 2015-02-09
 [taxonomies]
-tags = ["golang", "android"] 
+tags = ["golang", "android"]
 +++
 
 Build Android App in Android Studio with Go(1.4.1) support.
@@ -21,7 +21,7 @@ Build Android App in Android Studio with Go(1.4.1) support.
 
 ## Install NDK
 
-* Download & Install NDK 
+* Download & Install NDK
 
 
 ```
@@ -32,7 +32,7 @@ yaourt android-ndk
 * Make toolchains for ndk
 
 ```
-//set ndk root dir 
+//set ndk root dir
 export NDK_ROOT=/opt/android-ndk
 //build toolchains
 cd $NDK_ROOT
@@ -42,7 +42,7 @@ cd $NDK_ROOT
 ## Golang runtime bootstrap (for android)
 
 ```
-//get golang crosscompile 
+//get golang crosscompile
 git clone https://github.com/davecheney/golang-crosscompile.git
 //source build script
 source crosscompile.bash
@@ -78,7 +78,7 @@ func Test() int {
 EOF
 ```
 
-* create a gradle based android studio project 
+* create a gradle based android studio project
 
 ```
 //copy & set jni maker
@@ -87,10 +87,10 @@ cp <go_jni_maker>  <android_studio_project>/app/
 CC=/opt/android-ndk/bin/arm-linux-androideabli-gcc
 GOLIB=testgojni
 ```
-        
+
 * RUN make.bash
 * insert init snippet in MainActivity
-        
+
 ```
 protected void onCreate(Bundle savedInstanceState) {
     .....
@@ -99,4 +99,3 @@ protected void onCreate(Bundle savedInstanceState) {
 }
 ```
 * Have fun
-        

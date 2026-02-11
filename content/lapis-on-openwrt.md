@@ -1,26 +1,25 @@
 +++
-title = 'lapis on openwrt'
-date = 2015-02-09 
+title = 'Lapis on OpenWrt'
+date = 2015-02-09
 [taxonomies]
-tags = ["openwrt", "nginx"] 
+tags = ["openwrt", "nginx"]
 +++
 
-听说前东家的产品在CES上展出了，很高兴这个项目剩下的小伙伴这么给力，同时也记录一下，当时撸过的一个框架(lapis)
+Heard that my former company's product was exhibited at CES. Happy that the remaining team members are doing great. This also reminds me of a framework (lapis) I worked with back then.
 
 <!-- more -->
 
 ## Http Service On Openwrt
-被抓状丁搞智能路由器的时候，我参考了小米和Hiwifi的http服务框架，基本上都是用的luci,只不过小米稍微有点节操，代码是公开的，至于hiwifi,据说是深度定制了luci，然后不知道为什么就不放开基于gpl的源代码了。
+When I was working on smart routers, I looked at the HTTP service frameworks of Xiaomi and Hiwifi. Both basically use luci - Xiaomi has some integrity with open source code. As for Hiwifi, they supposedly deeply customized luci but somehow don't release their GPL-based source code.
 
-测试过luci的性能，大约在5次/秒的量级，正在上一个项目搞nginx的时候，发现了一个lapis的框架，所以尝试搭建了一个，简单的http请求，性能能达到100次/秒，而且基于模板的lapis,比基于node的luci，编辑起来更简单一些....
+After testing luci's performance at about 5 requests/second, while working on nginx in my previous project, I discovered the lapis framework. I tried setting it up - simple HTTP requests achieved 100 requests/second. The template-based lapis is also easier to edit than the node-based luci...
 
 
-## 下载lapis_on_openwrt
-下载[lapis_on_openwrt](https://github.com/gaxxx/lapis_on_openwrt)
+## Download lapis_on_openwrt
+Download [lapis_on_openwrt](https://github.com/gaxxx/lapis_on_openwrt)
 
-## make image
-将lapis_on_monet放在Openwrt编译目录，运行makeimage.sh
+## Make Image
+Place lapis_on_monet in the OpenWrt build directory and run makeimage.sh
 
 
     ./makeimage.sh
-

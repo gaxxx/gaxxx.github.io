@@ -1,43 +1,39 @@
 +++
-title = "Docker简介"
+title = "Introduction to Docker"
 date = 2014-08-20
 [taxonomies]
 tags = ["cloud", "pass"]
-
 +++
 
-[Docker](http://docker.io)是一个提供PAAS平台服务的软件，它由golang编写，通过控制lxc服务，在一台宿主机上提供成百上千个lxc container的服务器，效率远高于SAAS。
+[Docker](http://docker.io) is a PAAS platform service software written in Go. It controls LXC services to provide hundreds or thousands of LXC containers on a single host, far more efficient than SAAS.
 
 <!-- more -->
 
-## 安装配置
-在archlinux下，直接运行 pacman
+## Installation
+On Archlinux, install directly with pacman:
 
 ```
 root# pacman -S docker
 root# systemctl start docker
 ```
 
-在Ubuntu下，运行因为与其他应用重名，所以更名为docker.io
+On Ubuntu, it's renamed to docker.io due to naming conflicts:
 
 ```
 root# apt-get install docker.io
 root# start docker.io
 ```
 
-## 常用命令
+## Common Commands
 
-* 下载镜像,可以下载其他linux发行版的镜像，小到busybox，大到ubuntu
-
+* Pull images - you can download various Linux distro images, from busybox to ubuntu:
 
 ```
-//下载Ubuntu14.04 minimal版本
-root# docker pull ubuntu:14.04  
+//Download Ubuntu 14.04 minimal version
+root# docker pull ubuntu:14.04
 ```
 
-
-* 列出镜像,列出pull下来的镜像
-
+* List images - show pulled images:
 
 ```
 root# docker images
@@ -47,45 +43,41 @@ root# docker images
     scratch             latest                511136ea3c5a        14 months ago       0 B
 ```
 
-* 创建Container, 其实就是执行镜像中的程序,比如nginx、apache等服务，也能执行bash等交互脚本
-
+* Create containers - run programs from images like nginx, apache, or interactive shells like bash:
 
 ```
-//执行交互式bash
+//Run interactive bash
 root# docker run -i -t busybox /bin/sh
 
-//执行服务 -d (detach) -P (导出端口) -p (将Contianer的外部端口映射到内部端口)
+//Run a service: -d (detach) -P (export ports) -p (map container external port to internal port)
 root# docker run -t ubuntu:14.04 -d -P -p 322:22 <service>
 ```
 
-* 显示Containers
-
+* Show containers:
 
 ```
-//活动的Container
-root# docker ps 
-//所有的Container,包括结束的
+//Active containers
+root# docker ps
+//All containers, including stopped ones
 root# docker ps -a
 ```
 
-* 提交image,如果在Container中安装了软件，或者更新系统，可以将Container提交成Image，避免重复的工作
-
+* Commit an image - if you've installed software or updated the system in a container, commit it as an image to avoid repetitive work:
 
 ```
-//提交Container,需要
+//Commit a container
 root# docker commit fdafdafda  streamer:1.0
 ```
 
+## Use Cases
 
-## 使用场景
-
-* 版本迭代测试，每个版本放一个不动的Image，然后通过建立Container进行测试
-* 快速部署，创建一个image，然后运行在各种不同的linux版本上，只要支持docker
-* PAAS服务，一台宿主机可以运行上千个小的Container,比如nginx静态文件服务
+* Version iteration testing - put each version in a fixed image, then create containers for testing
+* Rapid deployment - create an image, then run it on various Linux versions that support Docker
+* PAAS services - a single host can run thousands of small containers, e.g. nginx static file servers
 
 ## Dockerfile
 
-通过Dockerfile可以简化docker命令，比如有一个测试程序目录，里面有streamer , node.conf,需要将这两个文件部署到docker,并通过9527端口进行服务.可以在该目录新建一个Dockfile文件，内容如下
+Dockerfiles simplify Docker commands. For example, with a test directory containing streamer and node.conf that need to be deployed to Docker with port 9527, create a Dockerfile:
 
 ```
 #docker pull ubuntu:14.04
@@ -93,26 +85,26 @@ FROM ubuntu:14.04
 
 # Set correct environment variables.
 ENV HOME /root
-#增加文件
-ADD streamer /root/streamer 
+#Add files
+ADD streamer /root/streamer
 ADD node.conf /root/node.conf
-#需要导出的端口
+#Export port
 EXPOSE 9527
-#工作目录
+#Working directory
 WORKDIR /root/
-#运行程序，没有这一行的话，可以运行ubuntu:14.04的所有程序，但是有这一行，只能执行streamer了
+#Run program - without this line you can run all ubuntu:14.04 programs, but with it only streamer runs
 ENTRYPOINT ["./streamer"]
 ```
 
-根据Dockerfile编译Image 
+Build the image from the Dockerfile:
 
 ```
 root# docker build -t streamer  .
 ```
 
-运行Image
-	
+Run the image:
+
 ```
-//只能运行streamer
+//Can only run streamer
 root# docker run -t streamer -P  -p 9527:9527
 ```
