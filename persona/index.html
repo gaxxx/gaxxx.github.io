@@ -75,15 +75,22 @@ Escape from OpenClaw &middot; siwu&#x27;s blog
 
 
     <div class="post-content">
-        <p><strong>TL;DR</strong></p>
-<ul>
-<li><strong>What it is</strong> — a personal assistant that's a <em>folder on your disk</em>, not an app: a very thin harness wiring Claude Code to Telegram, cron, and a knowledge base. You text it; it keeps your whole life in Markdown you own.</li>
-<li><strong>The bet</strong> — own the one layer that doesn't churn: your data. The model evolves, skills get superseded, the harness shrinks to glue — even which CLI you run it on swaps out — but your files and chat history stay put. <em>Freedom isn't running the strongest model — it's that everything above your data is swappable.</em></li>
-<li><strong>Why Claude Code</strong> — open weights can't carry the judgment; ChatGPT/Gemini are closed products, not runtimes you own. Claude Code is stable, strong, ships the runtime as something you keep, has the most reliable tool-calling (and improving), and a flat subscription makes the dozens of tool-calls behind every reply essentially free.</li>
-<li><strong>The economics</strong> — one instance bills ≈ <strong>$970/week</strong> at list price. It runs on a <strong>$100/month</strong> subscription, and I run four. The model is the only cost — so it's the one knob you turn down: a cheaper tier, or point a cheaper API like DeepSeek at the same harness to push it lower still.</li>
+        <ul>
+<li>
+<p><strong>What it is</strong> — a personal assistant that's a <em>folder on your disk</em>, not an app: a very thin harness wiring Claude Code to Telegram, cron, and a knowledge base. You text it; it keeps your whole life in Markdown you own.</p>
+</li>
+<li>
+<p><strong>The bet</strong> — own the one layer that doesn't churn: your data. The model evolves, skills get superseded, the harness shrinks to glue — even which CLI you run it on swaps out — but your files and chat history stay put. <em>Freedom isn't running the strongest model — it's that everything above your data is swappable.</em></p>
+</li>
+<li>
+<p><strong>Why Claude Code</strong> — open weights can't carry the judgment; ChatGPT/Gemini are closed products, not runtimes you own. Claude Code is stable, strong, ships the runtime as something you keep, has the most reliable tool-calling (and improving), and a flat subscription makes the dozens of tool-calls behind every reply essentially free.</p>
+</li>
+<li>
+<p><strong>The economics</strong> — one instance bills ≈ <strong>$970/week</strong> at list price. It runs on a <strong>$100/month</strong> subscription, and I run four. The model is the only cost — so it's the one knob you turn down: a cheaper tier, or point a cheaper API like DeepSeek at the same harness to push it lower still.</p>
+</li>
 </ul>
 <span id="continue-reading"></span>
-<p>y personal assistant is a folder on my disk that happens to talk back.</p>
+<p>Personal assistant is a folder on my disk that happens to talk back.</p>
 <p>For the last few months I've been texting a personal assistant I built for myself. It's a Telegram bot. I message it the way I'd message a friend — "when does my wife's driver's license expire," "is this resume real," "remind the kids to practice at 7," "save this to my notes" — and it just does the thing. It books nothing to a SaaS, syncs to no cloud database, and keeps every byte of my life in Markdown files I already own. By its own honest tally it burns about <strong>$970 a week</strong> in model time — and that turns out to be the cheapest part of the story.</p>
 <p>I open-sourced the scaffold as <strong>Persona</strong> (MIT, <a rel="external" href="https://github.com/gaxxx/persona">github.com/gaxxx/persona</a>). But the code is the easy part. The part worth arguing for is three claims: <strong>why this has to be yours, why Claude Code is already enough to build it, and how little it actually takes.</strong></p>
 <h2 id="1-why-it-has-to-be-yours">1. Why it has to be <em>yours</em></h2>
