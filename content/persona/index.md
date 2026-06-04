@@ -1,6 +1,6 @@
 +++
 title = "Escape from OpenClaw"
-date = 2026-06-4
+date = 2026-06-04
 [taxonomies]
 tags = ["claude", "openclaw", "obsidian"]
 +++
