@@ -5,18 +5,19 @@ date = 2026-06-04
 tags = ["claude", "openclaw", "obsidian"]
 +++
 
-**TL;DR**
-
 - **What it is** — a personal assistant that's a *folder on your disk*, not an app: a very thin harness wiring Claude Code to Telegram, cron, and a knowledge base. You text it; it keeps your whole life in Markdown you own.
+
 - **The bet** — own the one layer that doesn't churn: your data. The model evolves, skills get superseded, the harness shrinks to glue — even which CLI you run it on swaps out — but your files and chat history stay put. *Freedom isn't running the strongest model — it's that everything above your data is swappable.*
+
 - **Why Claude Code** — open weights can't carry the judgment; ChatGPT/Gemini are closed products, not runtimes you own. Claude Code is stable, strong, ships the runtime as something you keep, has the most reliable tool-calling (and improving), and a flat subscription makes the dozens of tool-calls behind every reply essentially free.
+
 - **The economics** — one instance bills ≈ **$970/week** at list price. It runs on a **$100/month** subscription, and I run four. The model is the only cost — so it's the one knob you turn down: a cheaper tier, or point a cheaper API like DeepSeek at the same harness to push it lower still.
 
 
 
 <!-- more -->
 
-y personal assistant is a folder on my disk that happens to talk back.
+Personal assistant is a folder on my disk that happens to talk back.
 
 For the last few months I've been texting a personal assistant I built for myself. It's a Telegram bot. I message it the way I'd message a friend — "when does my wife's driver's license expire," "is this resume real," "remind the kids to practice at 7," "save this to my notes" — and it just does the thing. It books nothing to a SaaS, syncs to no cloud database, and keeps every byte of my life in Markdown files I already own. By its own honest tally it burns about **$970 a week** in model time — and that turns out to be the cheapest part of the story.
 
