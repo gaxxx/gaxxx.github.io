@@ -5,7 +5,7 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
     <title>
-Escape from OpenClaw &middot; siwu&#x27;s blog
+From OpenClaw to Your Own Assistant &middot; siwu&#x27;s blog
 </title>
     <link rel="stylesheet" href="https://gaxxx.github.io/slim.css">
     
@@ -51,7 +51,7 @@ Escape from OpenClaw &middot; siwu&#x27;s blog
 <div class="post">
     
     
-<h2 class="post-title"><a href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;persona&#x2F;">Escape from OpenClaw</a></h2>
+<h2 class="post-title"><a href="https:&#x2F;&#x2F;gaxxx.github.io&#x2F;persona&#x2F;">From OpenClaw to Your Own Assistant</a></h2>
 <div class="post-header">
     <span class="post-date">June 04, 2026</span>
     
@@ -75,15 +75,15 @@ Escape from OpenClaw &middot; siwu&#x27;s blog
 
 
     <div class="post-content">
-        <p>A personal assistant is one channel, one conversation — it answers everything I ask in a single ongoing thread; in this project that channel is Telegram by default. Under the hood, it's an <em>evolving knowledge base, wired into the network, that happens to talk back</em>.</p>
-<p>The bet: <strong>own the one layer that doesn't churn — your data.</strong> The model keeps evolving, the harness is throwaway glue, even the CLI underneath could swap out — but the folder stays mine.</p>
+        <p>A personal assistant should be like a person: one channel, one conversation — it answers everything you ask in a single ongoing thread; in this project that channel is Telegram by default. Under the hood, it's an <em>evolving knowledge base, wired into the network, that happens to talk back</em>.</p>
+<p>The bet: <strong>own the one layer that doesn't churn — your data.</strong> The model keeps evolving, the harness is throwaway glue, even the CLI underneath could swap out — but the folder stays yours.</p>
 <span id="continue-reading"></span><h2 id="how-it-started">How it started</h2>
 <p>Anthropic banned OpenClaw, the tool I'd been running my assistant through — and with it went the freedom to reach my own Claude. The fallbacks shut the same door: Hermes wouldn't take my Claude OAuth either, and the raw API meant metered cost I couldn't predict — riding an SDK that keeps piling on features I never asked for.</p>
 <p>So I built my own on Claude Code, and kept both doors open: by default it runs on my subscription's OAuth — nothing a vendor can quietly cut off again — but the harness doesn't care what's behind it, so swapping to an API (Anthropic's, or a cheaper one like DeepSeek) is a single env var. OAuth or API, it's my own Claude, my choice. <strong>That's the freedom I was after.</strong></p>
 <p>The result is <strong>Persona</strong> (MIT, <a rel="external" href="https://github.com/gaxxx/persona">github.com/gaxxx/persona</a>). The code was the easy part. What's worth writing down is why it has to be yours, and how little it actually takes.</p>
 <h2 id="why-it-s-yours">Why it's yours</h2>
-<p>Most personal-AI products want to be the system of record: your life pours into their database, hostage to someone else's uptime and business model. Persona is the other way round — the one thing that makes it mine is <strong>my data</strong>, plain Markdown in a folder I control: readable, greppable, deletable. The assistant is disposable; the data is permanent.</p>
-<p>Everything <em>above</em> the data is swappable — the model is a commodity I can trade down, the harness is throwaway glue, and even the skills are distilled from my own logs, so the judgment survives any format. <em>Freedom isn't running the strongest model — it's being able to swap it.</em></p>
+<p>Most personal-AI products want to be the system of record: your life pours into their database, hostage to someone else's uptime and business model. Persona is the other way round — the one thing that makes it yours is <strong>your data</strong>, plain Markdown in a folder you control: readable, greppable, deletable. The assistant is disposable; the data is permanent.</p>
+<p>Everything <em>above</em> the data is swappable — the model is a commodity you can trade down, the harness is throwaway glue, and even the skills are distilled from your own logs, so the judgment survives any format. <em>Freedom isn't running the strongest model — it's being able to swap it.</em></p>
 <h2 id="the-architecture">The architecture</h2>
 <p>The reflex is to reach for a framework — an agent graph, a vector DB, a queue. I reached for none of it. Claude Code already <em>is</em> a long-lived process that reads and writes your files, speaks MCP, loads file-based skills on demand, and ships a memory model worth stealing. The "framework" collapses into a few hundred lines of glue — three background processes sharing one folder:</p>
 <pre><code>┌──────────────┐  ┌──────────────┐  ┌──────────────┐
@@ -108,7 +108,7 @@ Escape from OpenClaw &middot; siwu&#x27;s blog
 </ul>
 <p>Two ideas keep those few hundred lines standing up.</p>
 <p><strong>It forgets on purpose.</strong> Like a person after a night's sleep, it drops the short-term churn and keeps what matters: the inner Claude rotates on a budget — turns, hours, tokens, however short or long I set it — then rebuilds from disk on a recipe I choose. Nothing's lost in the reset, because the durable layer is the folder, not the context window — and that memory is files you can <code>cat</code>, not embeddings: when it surprises me, I open the exact fact and delete it. <em>You cannot</em> <code>cat</code> <em>a vector.</em></p>
-<p><strong>You grow your own skills.</strong> A skill is just a Markdown prompt. The assistant improves not from a bigger model but from skills shaped to me — distilled from my own conversation logs, or generated by whatever meta skill-builder I point at them, until each one fits my life instead of a vendor's defaults. A correction I make once becomes a rule; a need I keep hitting becomes a skill that's already there next time.</p>
+<p><strong>You grow your own skills.</strong> A skill is just a Markdown prompt. The assistant improves not from a bigger model but from skills shaped to you — distilled from your own conversation logs, or generated by whatever meta skill-builder you point at them, until each one fits your life instead of a vendor's defaults. A correction you make once becomes a rule; a need you keep hitting becomes a skill that's already there next time.</p>
 <h2 id="the-bill-is-the-punchline">The bill is the punchline</h2>
 <p>Because it runs on Claude Code, the daemon can tally what every turn <em>would</em> have cost at Opus list price. One instance, after about a week of real use:</p>
 <p><img src="https://gaxxx.github.io/persona/persona-bill.jpg" alt="One Persona instance, ~a week of real use: ≈ $970 of API usage at Opus 4.7 list price." /></p>
