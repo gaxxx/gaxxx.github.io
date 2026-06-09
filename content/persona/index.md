@@ -62,7 +62,7 @@ Because it runs on Claude Code, the daemon can tally what every turn *would* hav
 
 ![One Persona instance, ~a week of real use: ≈ $970 of API usage at Opus 4.7 list price.](persona-bill.jpg)
 
-That does not cost me $970. It runs on my **$100-a-month** Claude Code subscription — and I run **four** of these on the same plan. The model is the only metered thing, which makes it the only knob worth turning: drop a kid's reminder to a cheaper tier, or point a cheaper API at the same harness. The expensive part is, by design, the one part you can swap.
+That's the list price, not my bill. For a while it ran on my **$100-a-month** Claude Code subscription — already a world away from $970. Then I turned the one metered knob: each instance now runs a different brain behind the same harness — my wife's on **Claude Pro with Opus**, my own on **DeepSeek for text and Gemini for vision** — and the whole thing came down to about **$30 a month**. The expensive part is, by design, the one part you can swap.
 
 ## How: two moves
 
